@@ -7,150 +7,250 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; padding: 15px; line-height: 1.6; }
         .container { max-width: 600px; margin: auto; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         h2, h3 { color: #2c3e50; margin-top: 0; border-left: 4px solid #4CAF50; padding-left: 10px; }
         
         label { display: block; margin-top: 10px; font-weight: bold; color: #555; font-size: 0.9em; }
-        input[type="text"], input[type="date"], select, textarea { 
-            width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; 
-        }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        
+        .price-group { display: flex; gap: 10px; }
+        .price-group input { flex: 2; }
+        .price-group select { flex: 1.2; }
 
-        .checkbox-container {
-            display: flex; 
-            align-items: center; 
-            justify-content: flex-start;
-            margin: 15px 0; 
-            cursor: pointer;
-        }
-        .checkbox-container input[type="checkbox"] { 
-            width: 20px;
-            height: 20px;
-            margin: 0 10px 0 0;
-            cursor: pointer;
-        }
-        .checkbox-text { font-size: 16px; color: #333; font-weight: bold; }
+        .checkbox-container { display: flex; align-items: center; justify-content: flex-start; margin: 15px 0; cursor: pointer; }
+        .checkbox-container input { width: 22px; height: 22px; margin: 0 10px 0 0; cursor: pointer; }
 
         button { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #45a049; }
-        button:disabled { background: #ccc; }
+        button#cancelEdit { background: #95a5a6; display: none; margin-top: 10px; }
 
-        .stat-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-bottom: 1px solid #eee; }
-        .tag-reorder { color: #e67e22; font-weight: bold; font-size: 0.8em; padding: 2px 5px; background: #fff3e0; border-radius: 4px; }
-        .tag-rating { color: #f1c40f; font-weight: bold; margin-right: 5px; }
-        .shop-name { font-weight: bold; color: #2980b9; }
-        .empty-msg { color: #999; font-style: italic; text-align: center; padding: 10px; }
+        /* 月份分類樣式 */
+        .month-header { background: #e8f5e9; padding: 12px 15px; border-radius: 8px; cursor: pointer; margin-top: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border: 1px solid #c8e6c9; }
+        .month-content { display: none; padding: 5px; background: #fff; border: 1px solid #eee; border-top: none; border-radius: 0 0 8px 8px; }
+        .record-item { border-bottom: 1px solid #f0f0f0; padding: 12px 5px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .record-info { flex: 1; margin-right: 10px; }
+        .record-meta { font-size: 0.85em; color: #7f8c8d; margin-top: 4px; }
+        .edit-btn { color: #3498db; font-size: 0.85em; cursor: pointer; border: 1px solid #3498db; padding: 4px 10px; border-radius: 6px; white-space: nowrap; align-self: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="card">
-        <h2>🥤 ㄎㄇ的飲料紀錄</h2>
+    <div class="card" id="inputSection">
+        <h2 id="formTitle">🥤 ㄎㄇ的飲料紀錄</h2>
+        <input type="hidden" id="editRowId">
+        
         <label>日期</label>
         <input type="date" id="date">
+        
         <label>飲料明細</label>
-        <input type="text" id="drinkName" placeholder="飲料名稱">
+        <input type="text" id="drinkName" placeholder="飲料名稱 (如：波霸奶茶)">
         <input type="text" id="shopInput" list="shopList" placeholder="店家名稱">
         <datalist id="shopList"></datalist>
 
-        <label>調整選項</label>
+        <label>價格與幣別</label>
+        <div class="price-group">
+            <input type="number" id="price" placeholder="金額 (如：65)">
+            <select id="currency">
+                <option value="NTD">NTD (台幣)</option>
+                <option value="KRW">KRW (韓元)</option>
+                <option value="JPY">JPY (日圓)</option>
+                <option value="USD">USD (美金)</option>
+                <option value="EUR">EUR (歐元)</option>
+                <option value="CNY">CNY (人民幣)</option>
+                <option value="HKD">HKD (港幣)</option>
+            </select>
+        </div>
+
+        <label>甜度選擇</label>
         <select id="sugar">
+            <option value="正常糖">正常糖 (10分)</option>
+            <option value="九分糖">九分糖</option>
+            <option value="少糖">少糖 (7分)</option>
+            <option value="半糖">半糖 (5分)</option>
+            <option value="微糖">微糖 (3分)</option>
+            <option value="二分糖">二分糖</option>
+            <option value="一分糖">一分糖 (1分)</option>
             <option value="無糖">無糖 (0%)</option>
-            <option value="一分糖">一分糖</option>
-            <option value="微糖">微糖 (3%)</option>
-            <option value="半糖">半糖 (5%)</option>
-            <option value="正常">正常</option>
         </select>
+
+        <label>冰塊選擇</label>
         <select id="ice">
-            <option value="完全去冰">完全去冰</option>
-            <option value="去冰">去冰</option>
-            <option value="微冰">微冰</option>
             <option value="正常冰">正常冰</option>
+            <option value="少冰">少冰</option>
+            <option value="微冰">微冰</option>
+            <option value="去冰">去冰</option>
+            <option value="完全去冰">完全去冰 (不加小碎冰)</option>
+            <option value="常溫">常溫</option>
+            <option value="溫">溫</option>
+            <option value="熱">熱</option>
         </select>
-        <input type="text" id="toppingInput" list="toppingList" placeholder="加料">
+
+        <label>加料</label>
+        <input type="text" id="toppingInput" list="toppingList" placeholder="加料 (如：珍珠、椰果、混珠)">
         <datalist id="toppingList"></datalist>
 
-        <label>評分與備註</label>
+        <label>購買方式</label>
+        <input type="text" id="orderMethod" placeholder="購買方式 (如：自取、外送、被請客)">
+        
+        <label>評分</label>
         <select id="rating">
-            <option value="5">⭐⭐⭐⭐⭐</option>
-            <option value="4">⭐⭐⭐⭐</option>
-            <option value="3">⭐⭐⭐</option>
-            <option value="2">⭐⭐</option>
-            <option value="1">⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐ (完美回購)</option>
+            <option value="4">⭐⭐⭐⭐ (不錯喝)</option>
+            <option value="3">⭐⭐⭐ (普通)</option>
+            <option value="2">⭐⭐ (有點雷)</option>
+            <option value="1">⭐ (極度失望)</option>
         </select>
+
         <label class="checkbox-container">
             <input type="checkbox" id="reorder" checked>
-            <span class="checkbox-text">標記為「會回購」</span>
+            <span style="font-weight: bold;">標記為「會回購」</span>
         </label>
-        <textarea id="comment" rows="2" placeholder="簡短評論..."></textarea>
+
+        <label>簡評</label>
+        <textarea id="comment" rows="2" placeholder="口感心得、備註..."></textarea>
         
         <button onclick="submitData()" id="submitBtn">送出記錄</button>
+        <button onclick="resetForm()" id="cancelEdit">取消編輯 / 回到新增</button>
     </div>
 
     <div class="card">
-        <h3>✨ 四星以上名單</h3>
-        <div id="highRatingList">載入中...</div>
-    </div>
-
-    <div class="card">
-        <h3>🧡 值得回購清單</h3>
-        <div id="reorderList">載入中...</div>
+        <h3>📅 歷史紀錄 (月份分類)</h3>
+        <div id="historyList">載入中...</div>
     </div>
 </div>
 
 <script>
+    // 請確認下方網址是你的 Apps Script 網址
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvMpikBJ2YRM8HCuuXj_VDUDE5Und3_vRBeYOwNy-7MulUCLIv3aGdLEMj7PrVCz8/exec";
+    let allData = [];
 
     document.getElementById('date').valueAsDate = new Date();
 
     function submitData() {
         const btn = document.getElementById('submitBtn');
+        const rowId = document.getElementById('editRowId').value;
         const data = {
+            rowId: rowId,
             date: document.getElementById('date').value,
             drinkName: document.getElementById('drinkName').value,
             shopName: document.getElementById('shopInput').value,
             sugar: document.getElementById('sugar').value,
             ice: document.getElementById('ice').value,
             topping: document.getElementById('toppingInput').value,
+            orderMethod: document.getElementById('orderMethod').value,
             rating: document.getElementById('rating').value,
             reorder: document.getElementById('reorder').checked,
-            comment: document.getElementById('comment').value
+            comment: document.getElementById('comment').value,
+            price: document.getElementById('price').value || "0",
+            currency: document.getElementById('currency').value
         };
 
-        if(!data.drinkName || !data.shopName) return alert("請填寫飲料與店家！");
+        if(!data.drinkName || !data.shopName) return alert("請填寫飲料名稱與店家！");
 
         btn.disabled = true;
         btn.innerText = "傳送中...";
 
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) })
-            .then(() => { alert("記錄成功！"); location.reload(); })
-            .catch(() => { alert("傳送失敗"); btn.disabled = false; });
+            .then(() => { 
+                alert(rowId ? "修改成功！" : "記錄成功！"); 
+                location.reload(); 
+            });
     }
 
-    // 讀取資料
     fetch(SCRIPT_URL)
         .then(res => res.json())
         .then(rows => {
+            allData = rows;
             const data = rows.slice(1);
-            const highRatingDiv = document.getElementById('highRatingList');
-            const reorderDiv = document.getElementById('reorderList');
-            highRatingDiv.innerHTML = ""; reorderDiv.innerHTML = "";
+            const historyDiv = document.getElementById('historyList');
+            historyDiv.innerHTML = "";
 
-            if(data.length === 0) return highRatingDiv.innerHTML = "尚無資料";
+            if(data.length === 0) {
+                historyDiv.innerHTML = "尚無記錄";
+                return;
+            }
 
-            // 自動記憶
+            // 店家與加料自動記憶
             const shops = [...new Set(data.map(r => r[2]))].filter(Boolean);
+            const toppings = [...new Set(data.map(r => r[5]))].filter(Boolean);
             shops.forEach(s => document.getElementById('shopList').innerHTML += `<option value="${s}">`);
+            toppings.forEach(t => document.getElementById('toppingList').innerHTML += `<option value="${t}">`);
 
-            // 統計顯示
-            data.forEach(r => {
-                const item = `<div class="stat-item"><span class="tag-rating">★${r[7]}</span> <b>${r[2]}</b> - ${r[1]}</div>`;
-                if(parseInt(r[7]) >= 4) highRatingDiv.innerHTML += item;
-                if(r[8] === "是" || r[8] === true) reorderDiv.innerHTML += item.replace('★'+r[7], '#回購');
+            // 按月份分類
+            const months = {};
+            data.forEach((r, index) => {
+                const date = new Date(r[0]);
+                if(isNaN(date)) return;
+                const mKey = `${date.getFullYear()}年 ${date.getMonth() + 1}月`;
+                if(!months[mKey]) months[mKey] = [];
+                months[mKey].push({ val: r, id: index + 1 });
             });
-        }).catch(e => {
-            document.getElementById('highRatingList').innerHTML = "載入失敗，請確認 Apps Script 部署設為「所有人」。";
+
+            Object.keys(months).reverse().forEach(m => {
+                const mHeader = document.createElement('div');
+                mHeader.className = 'month-header';
+                mHeader.innerHTML = `<span>${m}</span> <span>▼</span>`;
+                mHeader.onclick = function() {
+                    const content = this.nextElementSibling;
+                    content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                };
+
+                const mContent = document.createElement('div');
+                mContent.className = 'month-content';
+                
+                months[m].reverse().forEach(item => {
+                    const r = item.val;
+                    const d = new Date(r[0]);
+                    const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+                    const priceDisplay = r[10] ? `${r[10]} ${r[11] || 'NTD'}` : '';
+                    
+                    mContent.innerHTML += `
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div><b>${dateStr}</b> <span style="color:#2c3e50">${r[2]}</span> - ${r[1]}</div>
+                                <div class="record-meta">
+                                    ${r[3]} / ${r[4]} ${r[5] ? '/ '+r[5] : ''} <br>
+                                    <span style="color:#f1c40f">★${r[7]}</span> ${priceDisplay} 
+                                    ${r[8] === "是" ? '<span style="color:#e67e22;font-weight:bold;">#回購</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="edit-btn" onclick="startEdit(${item.id})">編輯</div>
+                        </div>`;
+                });
+                historyDiv.appendChild(mHeader);
+                historyDiv.appendChild(mContent);
+            });
         });
+
+    function startEdit(rowId) {
+        const r = allData[rowId];
+        document.getElementById('editRowId').value = rowId;
+        const d = new Date(r[0]);
+        // 格式化日期為 yyyy-mm-dd
+        const formattedDate = d.toISOString().split('T')[0];
+        
+        document.getElementById('date').value = formattedDate;
+        document.getElementById('drinkName').value = r[1];
+        document.getElementById('shopInput').value = r[2];
+        document.getElementById('sugar').value = r[3];
+        document.getElementById('ice').value = r[4];
+        document.getElementById('toppingInput').value = r[5];
+        document.getElementById('orderMethod').value = r[6];
+        document.getElementById('rating').value = r[7];
+        document.getElementById('reorder').checked = (r[8] === "是");
+        document.getElementById('comment').value = r[9] || "";
+        document.getElementById('price').value = r[10] || "";
+        document.getElementById('currency').value = r[11] || "NTD";
+        
+        document.getElementById('formTitle').innerText = "✍️ 正在編輯紀錄";
+        document.getElementById('submitBtn').innerText = "儲存修改";
+        document.getElementById('cancelEdit').style.display = "block";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        location.reload();
+    }
 </script>
 </body>
 </html>
