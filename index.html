@@ -7,37 +7,38 @@
     <style>
         body { font-family: sans-serif; padding: 15px; background: #f4f7f6; line-height: 1.5; color: #333; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 550px; margin: auto; margin-bottom: 20px; }
-        h2, h3 { color: #2c3e50; margin-top: 0; border-left: 4px solid #4CAF50; padding-left: 10px; }
+        h2, h3 { color: #2c3e50; margin-top: 0; border-left: 4px solid #4CAF50; padding-left: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         
+        /* 表單樣式 */
         label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.9em; color: #666; }
         input, select, textarea { width: 100%; padding: 12px; margin: 6px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        
         .price-group { display: flex; gap: 8px; }
-        .price-group input { flex: 1.5; }
-        .price-group select { flex: 1.5; }
+        button#submitBtn { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
 
-        button { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        button#cancelEdit { background: #95a5a6; display: none; }
+        /* 模組展開收起 */
+        .module-content { display: none; margin-top: 15px; }
 
-        /* 篩選按鈕樣式 */
-        .filter-tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tab-btn { background: #fff; color: #666; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-size: 0.85em; white-space: nowrap; flex-shrink: 0; }
-        .tab-btn.active { background: #4CAF50; color: #fff; border-color: #4CAF50; }
+        /* 月份網格 (深色底) */
+        .month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .month-btn { padding: 10px; background: none; border: none; color: #ccc; cursor: pointer; text-align: center; border-radius: 50%; font-size: 0.9em; }
+        .month-btn.active { background: #00f2fe; color: #333; font-weight: bold; }
 
-        /* 月份與紀錄樣式 */
-        .month-header { background: #e8f5e9; padding: 12px 15px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .month-content { display: none; padding-left: 5px; }
-        .record-entry { background: white; border: 1px solid #eee; margin-top: 8px; border-radius: 8px; overflow: hidden; }
-        .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .record-title { font-size: 0.95em; flex: 1; margin-right: 10px; }
-        .record-details { display: none; padding: 12px; background: #fafafa; border-top: 1px dashed #ddd; font-size: 0.9em; }
+        /* 歷史紀錄條目 (修正為白色方框) */
+        .record-entry { background: #fff; border: 1px solid #ddd; margin-top: 8px; border-radius: 8px; overflow: hidden; }
+        .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95em; }
+        .record-details { display: none; padding: 12px; background: #fafafa; border-top: 1px solid #eee; font-size: 0.9em; }
         
+        /* 好喝清單 (直接顯示) */
+        .best-item { padding: 12px; border-bottom: 1px solid #eee; background: #fff; border-radius: 8px; margin-bottom: 8px; border-left: 5px solid #f39c12; }
+        .best-title { font-weight: bold; font-size: 1em; }
+        .best-meta { font-size: 0.85em; color: #666; margin-top: 4px; }
+
+        /* 詳情排版 */
         .detail-item { margin-bottom: 6px; display: flex; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; }
         .detail-label { color: #888; width: 85px; flex-shrink: 0; font-weight: bold; }
         .reorder-text { color: #e67e22; font-weight: bold; }
-        .reorder-star { color: #f39c12; margin-right: 3px; }
-        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
-        .edit-btn, .del-btn { cursor: pointer; border: 1px solid #3498db; padding: 6px 12px; border-radius: 6px; flex: 1; text-align: center; }
+        .btn-group { display: flex; gap: 8px; margin-top: 10px; }
+        .edit-btn, .del-btn { cursor: pointer; border: 1px solid #3498db; padding: 4px 8px; border-radius: 6px; flex: 1; text-align: center; font-size: 0.85em; }
         .edit-btn { color: #3498db; }
         .del-btn { color: #e74c3c; border-color: #e74c3c; }
     </style>
@@ -45,83 +46,167 @@
 <body>
 
 <div class="card">
-    <h2 id="formTitle">🥤 飲料紀錄</h2>
+    <h2 id="formTitle">🥤 新增紀錄</h2>
     <input type="hidden" id="editRowId">
+    <label>日期</label><input type="date" id="date">
+    <label>店家名稱</label><input type="text" id="shopInput" list="shopList" placeholder="店家名稱"><datalist id="shopList"></datalist>
+    <label>飲料名稱</label><input type="text" id="drinkName" placeholder="飲料名稱">
+    <label>加料</label><input type="text" id="toppingInput" list="toppingList" placeholder="加料 (如:粉條)"><datalist id="toppingList"></datalist>
     
-    <label>日期</label>
-    <input type="date" id="date">
-
-    <label>店家名稱</label>
-    <input type="text" id="shopInput" list="shopList" placeholder="例如：林三茶研所">
-    <datalist id="shopList"></datalist>
-
-    <label>飲料名稱</label>
-    <input type="text" id="drinkName" placeholder="例如：黃金烏龍拿鐵">
-
-    <label>加料</label>
-    <input type="text" id="toppingInput" list="toppingList" placeholder="例如：粉條">
-    <datalist id="toppingList"></datalist>
-
     <div class="price-group">
-        <div><label>金額</label><input type="number" id="price"></div>
-        <div><label>幣值</label><select id="currency">
-            <option value="NTD">NTD (台幣)</option><option value="USD">USD (美金)</option><option value="JPY">JPY (日圓)</option><option value="KRW">KRW (韓元)</option>
-        </select></div>
+        <div><label>價格</label><input type="number" id="price"></div>
+        <div><label>幣值</label><select id="currency"><option value="NTD">NTD (台幣)</option><option value="KRW">KRW (韓元)</option><option value="JPY">JPY (日圓)</option></select></div>
     </div>
 
-    <label>甜度 / 冰塊</label>
+    <label>調整選項</label>
     <div class="price-group">
         <select id="sugar"><option value="正常糖">正常糖</option><option value="半糖">半糖</option><option value="微糖">微糖</option><option value="無糖">無糖</option></select>
-        <select id="ice"><option value="正常冰">正常冰</option><option value="少冰">少冰</option><option value="去冰">去冰</option><option value="熱">熱</option></select>
+        <select id="ice"><option value="正常冰">正常冰</option><option value="少冰">少冰</option><option value="微冰">微冰</option><option value="去冰">去冰</option></select>
     </div>
 
     <label>購買方式 / 星等</label>
     <div class="price-group">
-        <input type="text" id="orderMethod" placeholder="購買方式">
+        <input type="text" id="orderMethod" placeholder="購買地點/外送">
         <select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option></select>
     </div>
 
-    <label style="display: flex; align-items: center; gap: 8px; margin: 15px 0; cursor: pointer;">
-        <input type="checkbox" id="reorder" style="width: 20px; height: 20px; margin: 0;"> <b>是否會回購</b>
-    </label>
-
+    <label style="display:flex; align-items:center; gap:8px; margin: 15px 0;"><input type="checkbox" id="reorder" style="width:20px; height:20px;"> <b>是否會回購</b></label>
     <textarea id="comment" rows="2" placeholder="詳細口感心得..."></textarea>
     <button onclick="submitData()" id="submitBtn">送出記錄</button>
-    <button onclick="resetForm()" id="cancelEdit">取消編輯</button>
 </div>
 
 <div class="card">
-    <h3>📅 歷史紀錄篩選</h3>
-    <div class="filter-tabs">
-        <button class="tab-btn active" onclick="setFilter('all', this)">全部</button>
-        <button class="tab-btn" onclick="setFilter('star5', this)">⭐⭐⭐⭐⭐清單</button>
-        <button class="tab-btn" onclick="setFilter('star4', this)">⭐⭐⭐⭐清單</button>
-        <select id="shopFilter" class="tab-btn" style="width:auto; margin:0;" onchange="setFilter('shop', this)">
-            <option value="">依店家篩選...</option>
-        </select>
+    <h3 onclick="toggleModule('historyModule')">📅 歷史紀錄 <span id="yearDisplay"></span> <span>▼</span></h3>
+    <div id="historyModule" class="module-content" style="display: block;">
+        <div class="month-grid" id="monthGrid"></div>
+        <div id="historyRecords"></div>
     </div>
-    <div id="historyList">載入中...</div>
+</div>
+
+<div class="card">
+    <h3 onclick="toggleModule('bestModule')">🧡 好喝清單 (4-5星) <span>▼</span></h3>
+    <div id="bestModule" class="module-content">
+        <div id="bestRecords"></div>
+    </div>
+</div>
+
+<div class="card">
+    <h3 onclick="toggleModule('shopModule')">🏬 依店家篩選 <span>▼</span></h3>
+    <div id="shopModule" class="module-content">
+        <select id="shopSelect" onchange="filterByShop(this.value)">
+            <option value="">請選擇店家...</option>
+        </select>
+        <div id="shopRecords" style="margin-top:15px;"></div>
+    </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvMpikBJ2YRM8HCuuXj_VDUDE5Und3_vRBeYOwNy-7MulUCLIv3aGdLEMj7PrVCz8/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvMpikBJ2YRM8HCuuXj_VDUDE5Und3_vRBeYOwNy-7MulUCLIv3aGdLEMj7PrVCz8/exec";
     let allData = [];
-    let currentFilter = 'all';
-    let filterShop = '';
 
     document.getElementById('date').valueAsDate = new Date();
 
-    function setFilter(type, el) {
-        currentFilter = type;
-        if(type !== 'shop') {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('shopFilter').value = "";
-        } else {
-            filterShop = el.value;
-            if(!filterShop) currentFilter = 'all';
+    function toggleModule(id) {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // 初始化月份網格
+    function initMonthGrid() {
+        const grid = document.getElementById('monthGrid');
+        const now = new Date();
+        document.getElementById('yearDisplay').innerText = now.getFullYear() + "年";
+        for (let i = 1; i <= 12; i++) {
+            grid.innerHTML += `<button class="month-btn" id="mbtn-${i}" onclick="showMonthRecords(${i}, this)">${i}月</button>`;
         }
-        renderHistory();
+    }
+
+    // 取得資料
+    fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+        allData = data;
+        initMonthGrid();
+        updateFilters();
+        renderBestList();
+        // 預設顯示當前月份
+        const currentMonth = new Date().getMonth() + 1;
+        showMonthRecords(currentMonth, document.getElementById('mbtn-'+currentMonth));
+    });
+
+    function updateFilters() {
+        const shops = [...new Set(allData.slice(1).map(r => r[2]))].filter(Boolean);
+        const shopSelect = document.getElementById('shopSelect');
+        const shopList = document.getElementById('shopList');
+        shops.forEach(s => {
+            shopSelect.innerHTML += `<option value="${s}">${s}</option>`;
+            shopList.innerHTML += `<option value="${s}">`;
+        });
+    }
+
+    function renderRecord(r, idx) {
+        const isReorder = r[8] === "是";
+        return `
+            <div class="record-entry">
+                <div class="record-summary" onclick="toggleDetail(this)">
+                    <div><b>${new Date(r[0]).getDate()}日</b> ${r[2]} - ${isReorder?'★':''}${r[1]} (${r[10]}${r[11]})</div>
+                    <span style="color:#3498db;">展開▼</span>
+                </div>
+                <div class="record-details">
+                    <div class="detail-item"><span class="detail-label">糖冰：</span><span>${r[3]} / ${r[4]}</span></div>
+                    <div class="detail-item"><span class="detail-label">加料內容：</span><span>${r[5] || '無'}</span></div>
+                    <div class="detail-item"><span class="detail-label">評分：</span><span>${"⭐".repeat(r[7])}</span></div>
+                    ${isReorder ? '<div class="detail-item"><span class="detail-label">狀態：</span><span class="reorder-text">【會回購】</span></div>' : ''}
+                    <div class="detail-item" style="flex-direction:column;border:none;"><span class="detail-label">簡評：</span><div style="margin-top:5px;background:#fff;padding:8px;border-radius:5px;border:1px solid #eee;">${r[9] || '無'}</div></div>
+                    <div class="btn-group"><div class="edit-btn" onclick="startEdit(${idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${idx})">刪除</div></div>
+                </div>
+            </div>`;
+    }
+
+    function showMonthRecords(m, btn) {
+        document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        const target = document.getElementById('historyRecords');
+        const filtered = allData.slice(1).filter(r => new Date(r[0]).getMonth() + 1 === m);
+        target.innerHTML = filtered.length ? "" : "<p style='text-align:center;color:#999;'>本月尚無紀錄</p>";
+        filtered.reverse().forEach(r => {
+            target.innerHTML += renderRecord(r, allData.indexOf(r));
+        });
+    }
+
+    function renderBestList() {
+        const target = document.getElementById('bestRecords');
+        const raw = allData.slice(1).filter(r => r[7] >= 4);
+        // 去重邏輯：以 店家+飲料名 為 Key，保留最新一筆
+        const uniqueBest = {};
+        raw.forEach(r => {
+            const key = r[2] + r[1];
+            if(!uniqueBest[key] || new Date(r[0]) > new Date(uniqueBest[key][0])) {
+                uniqueBest[key] = r;
+            }
+        });
+
+        Object.values(uniqueBest).reverse().forEach(r => {
+            target.innerHTML += `
+                <div class="best-item">
+                    <div class="best-title">${r[2]} - ${r[1]} <span style="color:#f1c40f;">★${r[7]}</span></div>
+                    <div class="best-meta">${r[3]} / ${r[4]} ${r[5] ? '(加料: '+r[5]+')' : ''}</div>
+                    <div class="best-meta" style="color:#e67e22; font-weight:bold;">${r[10]}${r[11]}</div>
+                </div>`;
+        });
+    }
+
+    function filterByShop(shop) {
+        const target = document.getElementById('shopRecords');
+        if(!shop) { target.innerHTML = ""; return; }
+        const filtered = allData.slice(1).filter(r => r[2] === shop);
+        target.innerHTML = "";
+        filtered.reverse().forEach(r => {
+            target.innerHTML += renderRecord(r, allData.indexOf(r));
+        });
+    }
+
+    function toggleDetail(el) {
+        const d = el.nextElementSibling;
+        d.style.display = (d.style.display === 'block') ? 'none' : 'block';
     }
 
     function submitData() {
@@ -141,80 +226,26 @@
             price: document.getElementById('price').value || "0",
             currency: document.getElementById('currency').value
         };
-        if(!data.drinkName || !data.shopName) return alert("請填寫店家與飲料名稱！");
         btn.disabled = true;
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) }).then(() => location.reload());
     }
 
-    function renderHistory() {
-        const historyDiv = document.getElementById('historyList');
-        historyDiv.innerHTML = "";
-        let data = allData.slice(1);
-
-        if(currentFilter === 'star5') data = data.filter(r => r[7] == 5);
-        if(currentFilter === 'star4') data = data.filter(r => r[7] == 4);
-        if(currentFilter === 'shop' && filterShop) data = data.filter(r => r[2] === filterShop);
-
-        const months = {};
-        data.forEach((r, idx) => {
-            const d = new Date(r[0]);
-            const mKey = `${d.getFullYear()}年 ${d.getMonth()+1}月`;
-            if(!months[mKey]) months[mKey] = [];
-            months[mKey].push({ val: r, id: allData.indexOf(r) });
-        });
-
-        Object.keys(months).reverse().forEach(m => {
-            const mHeader = document.createElement('div');
-            mHeader.className = 'month-header';
-            mHeader.innerHTML = `<span>${m}</span> <span>▼</span>`;
-            mHeader.onclick = function() {
-                const content = this.nextElementSibling;
-                content.style.display = (content.style.display === 'block') ? 'none' : 'block';
-            };
-            const mContent = document.createElement('div');
-            mContent.className = 'month-content';
-            months[m].reverse().forEach(item => {
-                const r = item.val;
-                const isReorder = r[8] === "是";
-                const entry = document.createElement('div');
-                entry.className = 'record-entry';
-                entry.innerHTML = `
-                    <div class="record-summary" onclick="toggleDetail(this)">
-                        <div class="record-title">
-                            <b>${new Date(r[0]).getDate()}日</b> ${r[2]} - ${isReorder?'★':''}${r[1]} (${r[10]}${r[11]})
-                        </div>
-                        <span style="font-size: 0.75em; color: #3498db;">詳情▼</span>
-                    </div>
-                    <div class="record-details">
-                        <div class="detail-item"><span class="detail-label">加料內容：</span><span>${r[5] || '無'}</span></div>
-                        <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
-                        ${isReorder ? '<div class="detail-item"><span class="detail-label">是否回購：</span><span class="reorder-text">會回購</span></div>' : ''}
-                        <div class="detail-item" style="flex-direction:column; border:none"><span class="detail-label">個人簡評：</span><div style="margin-top:5px; background:#fff; padding:8px; border-radius:4px; border:1px solid #eee;">${r[9] || '無'}</div></div>
-                        <div class="btn-group"><div class="edit-btn" onclick="startEdit(${item.id})">編輯</div><div class="del-btn" onclick="deleteRecord(${item.id})">刪除</div></div>
-                    </div>`;
-                mContent.appendChild(entry);
-            });
-            historyDiv.appendChild(mHeader);
-            historyDiv.appendChild(mContent);
-        });
+    function deleteRecord(idx) {
+        if(!confirm("確定要刪除嗎？")) return;
+        fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify({method:'DELETE', rowId:idx}) }).then(() => location.reload());
     }
 
-    fetch(SCRIPT_URL).then(res => res.json()).then(rows => {
-        allData = rows;
-        const shops = [...new Set(rows.slice(1).map(r => r[2]))].filter(Boolean);
-        shops.forEach(s => {
-            document.getElementById('shopList').innerHTML += `<option value="${s}">`;
-            document.getElementById('shopFilter').innerHTML += `<option value="${s}">${s}</option>`;
-        });
-        renderHistory();
-    });
-
-    function toggleDetail(el) {
-        const d = el.nextElementSibling;
-        d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+    function startEdit(idx) {
+        const r = allData[idx];
+        document.getElementById('editRowId').value = idx;
+        document.getElementById('date').value = new Date(r[0]).toISOString().split('T')[0];
+        document.getElementById('drinkName').value = r[1];
+        document.getElementById('shopInput').value = r[2];
+        document.getElementById('price').value = r[10];
+        document.getElementById('comment').value = r[9];
+        document.getElementById('formTitle').innerText = "✍️ 編輯中";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    function resetForm() { location.reload(); }
 </script>
 </body>
 </html>
