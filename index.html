@@ -13,29 +13,28 @@
         input, select, textarea { width: 100%; padding: 12px; margin: 6px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
         .price-group { display: flex; gap: 8px; }
-        .price-group input { flex: 2; }
-        .price-group select { flex: 1; }
+        .price-group input { flex: 1.5; }
+        .price-group select { flex: 1.5; }
 
         button { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
         button#cancelEdit { background: #95a5a6; display: none; }
 
         /* 多層次摺疊樣式 */
-        .month-header { background: #e8f5e9; padding: 12px 15px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .month-header { background: #e8f5e9; padding: 12px 15px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border: 1px solid #c8e6c9; }
         .month-content { display: none; padding-left: 5px; }
         
         .record-entry { background: white; border: 1px solid #eee; margin-top: 8px; border-radius: 8px; overflow: hidden; }
-        .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff; transition: background 0.2s; }
-        .record-summary:hover { background: #fcfcfc; }
+        .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff; }
         .record-title { font-size: 0.95em; flex: 1; margin-right: 10px; }
         .record-details { display: none; padding: 12px; background: #fafafa; border-top: 1px dashed #ddd; font-size: 0.9em; }
         
-        .detail-item { margin-bottom: 4px; display: flex; }
-        .detail-label { color: #888; width: 75px; flex-shrink: 0; }
-        .detail-val { color: #333; font-weight: 500; }
+        .detail-item { margin-bottom: 6px; display: flex; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; }
+        .detail-label { color: #888; width: 85px; flex-shrink: 0; font-weight: bold; }
+        .detail-val { color: #333; }
 
-        .btn-group { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
-        .edit-btn { color: #3498db; cursor: pointer; border: 1px solid #3498db; padding: 4px 10px; border-radius: 6px; flex: 1; text-align: center; }
-        .del-btn { color: #e74c3c; cursor: pointer; border: 1px solid #e74c3c; padding: 4px 10px; border-radius: 6px; flex: 1; text-align: center; }
+        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
+        .edit-btn { color: #3498db; cursor: pointer; border: 1px solid #3498db; padding: 6px 12px; border-radius: 6px; flex: 1; text-align: center; }
+        .del-btn { color: #e74c3c; cursor: pointer; border: 1px solid #e74c3c; padding: 6px 12px; border-radius: 6px; flex: 1; text-align: center; }
         .reorder-star { color: #f39c12; font-weight: bold; margin-right: 3px; }
     </style>
 </head>
@@ -59,40 +58,51 @@
     <input type="text" id="toppingInput" list="toppingList" placeholder="例如：粉條、珍珠">
     <datalist id="toppingList"></datalist>
 
-    <label>總價格 (含加料) 與幣值</label>
+    <label>總價格 (含加料) 幣值</label>
     <div class="price-group">
         <input type="number" id="price" placeholder="金額">
         <select id="currency">
-            <option value="NTD">NTD</option>
-            <option value="KRW">KRW</option>
-            <option value="JPY">JPY</option>
+            <option value="NTD">NTD (台幣)</option>
+            <option value="USD">USD (美金)</option>
+            <option value="CNY">CNY (人民幣)</option>
+            <option value="JPY">JPY (日圓)</option>
+            <option value="KRW">KRW (韓元)</option>
+            <option value="GBP">GBP (英鎊)</option>
+            <option value="EUR">EUR (歐元)</option>
+            <option value="AUD">AUD (澳幣)</option>
+            <option value="NZD">NZD (紐幣)</option>
+            <option value="HKD">HKD (港幣)</option>
         </select>
     </div>
 
-    <label>甜度</label>
+    <label>糖 (甜度)</label>
     <select id="sugar">
-        <option value="正常糖">正常糖</option>
-        <option value="少糖(7分)">少糖(7分)</option>
-        <option value="半糖(5分)">半糖(5分)</option>
-        <option value="微糖(3分)">微糖(3分)</option>
-        <option value="無糖">無糖</option>
+        <option value="正常糖">正常糖 (10分)</option>
+        <option value="九分糖">九分糖</option>
+        <option value="少糖">少糖 (7分)</option>
+        <option value="半糖">半糖 (5分)</option>
+        <option value="微糖">微糖 (3分)</option>
+        <option value="二分糖">二分糖</option>
+        <option value="一分糖">一分糖 (1分)</option>
+        <option value="無糖">無糖 (0%)</option>
     </select>
 
-    <label>冰塊</label>
+    <label>冰 (冰塊)</label>
     <select id="ice">
         <option value="正常冰">正常冰</option>
         <option value="少冰">少冰</option>
         <option value="微冰">微冰</option>
         <option value="去冰">去冰</option>
-        <option value="完全去冰">完全去冰</option>
+        <option value="完全去冰">完全去冰 (不加小碎冰)</option>
         <option value="常溫">常溫</option>
+        <option value="溫">溫</option>
         <option value="熱">熱</option>
     </select>
 
     <label>購買方式</label>
-    <input type="text" id="orderMethod" placeholder="例如：自取 / 南港lalaport">
+    <input type="text" id="orderMethod" placeholder="例如：自取 / 外送">
     
-    <label>星等評分</label>
+    <label>星等</label>
     <select id="rating">
         <option value="5">⭐⭐⭐⭐⭐</option>
         <option value="4">⭐⭐⭐⭐</option>
@@ -102,14 +112,14 @@
     </select>
 
     <label style="display: flex; align-items: center; gap: 8px; margin: 15px 0; cursor: pointer;">
-        <input type="checkbox" id="reorder" style="width: 20px; height: 20px; margin: 0;"> <b>會回購</b>
+        <input type="checkbox" id="reorder" style="width: 20px; height: 20px; margin: 0;"> <b>回購</b>
     </label>
 
     <label>簡評</label>
-    <textarea id="comment" rows="2" placeholder="詳細心得..."></textarea>
+    <textarea id="comment" rows="2" placeholder="詳細口感心得..."></textarea>
     
     <button onclick="submitData()" id="submitBtn">送出記錄</button>
-    <button onclick="resetForm()" id="cancelEdit">取消編輯</button>
+    <button onclick="resetForm()" id="cancelEdit">取消編輯 / 回到新增</button>
 </div>
 
 <div class="card">
@@ -158,7 +168,7 @@
         const historyDiv = document.getElementById('historyList');
         historyDiv.innerHTML = "";
 
-        // 自動加載選項
+        // 自動記憶選單
         const shops = new Set();
         const toppings = new Set();
         data.forEach(row => {
@@ -172,6 +182,7 @@
         const months = {};
         data.forEach((r, idx) => {
             const d = new Date(r[0]);
+            if(isNaN(d)) return;
             const mKey = `${d.getFullYear()}年 ${d.getMonth()+1}月`;
             if(!months[mKey]) months[mKey] = [];
             months[mKey].push({ val: r, id: idx + 1 });
@@ -180,10 +191,13 @@
         Object.keys(months).reverse().forEach(m => {
             const mHeader = document.createElement('div');
             mHeader.className = 'month-header';
-            mHeader.innerHTML = `<span>${m}</span> <span>▼</span>`;
+            mHeader.innerHTML = `<span>${m}</span> <span>▼展開月份</span>`;
             mHeader.onclick = function() {
                 const content = this.nextElementSibling;
-                content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+                const arrow = this.querySelector('span:last-child');
+                const isOpen = content.style.display === 'block';
+                content.style.display = isOpen ? 'none' : 'block';
+                arrow.innerText = isOpen ? '▼展開月份' : '▲收合月份';
             };
 
             const mContent = document.createElement('div');
@@ -202,14 +216,14 @@
                         <div class="record-title">
                             <b>${d.getDate()}日</b> ${r[2]} - ${starIcon}${r[1]} (${r[10]}${r[11]}) ${r[3]}/${r[4]}
                         </div>
-                        <span style="font-size: 0.7em; color: #aaa;">▼展開</span>
+                        <span style="font-size: 0.75em; color: #3498db; font-weight:bold;">詳情▼</span>
                     </div>
                     <div class="record-details">
-                        <div class="detail-item"><span class="detail-label">加料：</span><span class="detail-val">${r[5] || '無'}</span></div>
+                        <div class="detail-item"><span class="detail-label">加料內容：</span><span class="detail-val">${r[5] || '無'}</span></div>
                         <div class="detail-item"><span class="detail-label">購買方式：</span><span class="detail-val">${r[6] || '未填'}</span></div>
-                        <div class="detail-item"><span class="detail-label">評分：</span><span class="detail-val">${"⭐".repeat(r[7])}</span></div>
-                        <div class="detail-item"><span class="detail-label">會回購：</span><span class="detail-val">${r[8]}</span></div>
-                        <div class="detail-item" style="flex-direction:column"><span class="detail-label">簡評：</span><div class="detail-val" style="margin-top:4px">${r[9] || '無備註'}</div></div>
+                        <div class="detail-item"><span class="detail-label">星等評分：</span><span class="detail-val">${"⭐".repeat(r[7])}</span></div>
+                        <div class="detail-item"><span class="detail-label">是否回購：</span><span class="detail-val">${r[8]}</span></div>
+                        <div class="detail-item" style="flex-direction:column; border:none"><span class="detail-label">個人簡評：</span><div class="detail-val" style="margin-top:5px; background:#fff; padding:8px; border-radius:4px; border:1px solid #eee;">${r[9] || '無備註'}</div></div>
                         <div class="btn-group">
                             <div class="edit-btn" onclick="startEdit(${item.id})">編輯資料</div>
                             <div class="del-btn" onclick="deleteRecord(${item.id})">刪除紀錄</div>
@@ -225,16 +239,17 @@
 
     function toggleDetail(summaryElement) {
         const detail = summaryElement.nextElementSibling;
-        const arrow = summaryElement.querySelector('span');
+        const arrow = summaryElement.querySelector('span:last-child');
         const isOpen = detail.style.display === 'block';
         detail.style.display = isOpen ? 'none' : 'block';
-        arrow.innerText = isOpen ? '▼展開' : '▲收合';
+        arrow.innerText = isOpen ? '詳情▼' : '收合▲';
     }
 
     function startEdit(rowId) {
         const r = allData[rowId];
         document.getElementById('editRowId').value = rowId;
-        document.getElementById('date').value = new Date(r[0]).toISOString().split('T')[0];
+        const d = new Date(r[0]);
+        document.getElementById('date').value = d.toISOString().split('T')[0];
         document.getElementById('shopInput').value = r[2];
         document.getElementById('drinkName').value = r[1];
         document.getElementById('toppingInput').value = r[5];
@@ -248,9 +263,9 @@
         document.getElementById('comment').value = r[9];
         
         document.getElementById('formTitle').innerText = "✍️ 正在編輯紀錄";
-        document.getElementById('submitBtn').innerText = "儲存修改";
+        document.getElementById('submitBtn').innerText = "儲存修改資料";
         document.getElementById('cancelEdit').style.display = "block";
-        window.scrollTo(0,0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function resetForm() { location.reload(); }
