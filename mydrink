@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的飲控筆記</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; padding: 15px; line-height: 1.6; }
+        .container { max-width: 600px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2, h3 { color: #2c3e50; margin-top: 0; border-left: 4px solid #4CAF50; padding-left: 10px; }
+        
+        /* 表單樣式 */
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #45a049; }
+        button:disabled { background: #ccc; }
+
+        /* 統計清單樣式 */
+        .stat-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-bottom: 1px solid #eee; }
+        .tag-reorder { color: #e67e22; font-weight: bold; font-size: 0.8em; padding: 2px 5px; background: #fff3e0; border-radius: 4px; }
+        .tag-rating { color: #f1c40f; font-weight: bold; margin-right: 5px; }
+        .shop-name { font-weight: bold; color: #2980b9; }
+        .empty-msg { color: #999; font-style: italic; text-align: center; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>🥤 新增飲品記錄</h2>
+        <label>日期</label>
+        <input type="date" id="date">
+        
+        <input type="text" id="drinkName" placeholder="飲料名稱 (如：珍珠奶茶)">
+        
+        <input type="text" id="shopInput" list="shopList" placeholder="店家名稱">
+        <datalist id="shopList"></datalist>
+
+        <select id="sugar">
+            <option value="無糖">無糖 (0%)</option>
+            <option value="一分糖">一分糖 (10%)</option>
+            <option value="二分糖">二分糖 (20%)</option>
+            <option value="微糖">微糖 (3%)</option>
+            <option value="半糖">半糖 (5%)</option>
+            <option value="少糖">少糖 (7%)</option>
+            <option value="正常">正常 (10%)</option>
+        </select>
+
+        <select id="ice">
+            <option value="完全去冰">完全去冰</option>
+            <option value="去冰">去冰</option>
+            <option value="微冰">微冰</option>
+            <option value="少冰">少冰</option>
+            <option value="正常冰">正常冰</option>
+            <option value="常溫">常溫</option>
+            <option value="熱">熱</option>
+        </select>
+
+        <input type="text" id="toppingInput" list="toppingList" placeholder="加料 (如：波霸、燕麥)">
+        <datalist id="toppingList"></datalist>
+
+        <input type="text" id="orderMethod" placeholder="購買方式 (自取/外送/被請客)">
+        
+        <select id="rating">
+            <option value="5">⭐⭐⭐⭐⭐ (完美)</option>
+            <option value="4">⭐⭐⭐⭐ (不錯)</option>
+            <option value="3">⭐⭐⭐ (普通)</option>
+            <option value="2">⭐⭐ (雷)</option>
+            <option value="1">⭐ (極差)</option>
+        </select>
+
+        <label style="display:block; margin: 10px 0;"><input type="checkbox" id="reorder" checked> 標記為「會回購」</label>
+        <textarea id="comment" placeholder="簡短評論 (口感、甜度心得)..."></textarea>
+        
+        <button onclick="submitData()" id="submitBtn">送出記錄</button>
+    </div>
+
+    <div class="card">
+        <h3>✨ 四星以上名單</h3>
+        <div id="highRatingList">讀取中...</div>
+    </div>
+
+    <div class="card">
+        <h3>🧡 值得回購清單 (依店家)</h3>
+        <div id="reorderList">讀取中...</div>
+    </div>
+</div>
+
+<script>
+    // 已自動填入你的 Apps Script 網址
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvMpikBJ2YRM8HCuuXj_VDUDE5Und3_vRBeYOwNy-7MulUCLIv3aGdLEMj7PrVCz8/exec";
+
+    // 初始化日期
+    document.getElementById('date').valueAsDate = new Date();
+
+    // 送出資料到 Google Sheets
+    function submitData() {
+        const btn = document.getElementById('submitBtn');
+        const drink = document.getElementById('drinkName').value;
+        const shop = document.getElementById('shopInput').value;
+
+        if(!drink || !shop) {
+            alert("請填寫飲料名稱與店家名稱！");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "傳送中...";
+
+        const data = {
+            date: document.getElementById('date').value,
+            drinkName: drink,
+            shopName: shop,
+            sugar: document.getElementById('sugar').value,
+            ice: document.getElementById('ice').value,
+            topping: document.getElementById('toppingInput').value,
+            orderMethod: document.getElementById('orderMethod').value,
+            rating: document.getElementById('rating').value,
+            reorder: document.getElementById('reorder').checked,
+            comment: document.getElementById('comment').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: 'no-cors',
+            body: JSON.stringify(data)
+        }).then(() => {
+            alert("記錄成功！網頁將重新整理更新統計。");
+            location.reload();
+        }).catch(err => {
+            alert("傳送失敗，請檢查網路設定。");
+            btn.disabled = false;
+            btn.innerText = "送出記錄";
+        });
+    }
+
+    // 抓取資料並生成網頁清單
+    fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(rows => {
+            const data = rows.slice(1); // 移除試算表首行標題
+            const highRatingDiv = document.getElementById('highRatingList');
+            const reorderDiv = document.getElementById('reorderList');
+            
+            highRatingDiv.innerHTML = "";
+            reorderDiv.innerHTML = "";
+
+            if(data.length === 0) {
+                highRatingDiv.innerHTML = reorderDiv.innerHTML = '<div class="empty-msg">尚無記錄，快去喝一杯吧！</div>';
+                return;
+            }
+
+            // 1. 自動記憶：店家與加料下拉選單
+            const shops = [...new Set(data.map(r => r[2]))].filter(Boolean);
+            const toppings = [...new Set(data.map(r => r[5]))].filter(Boolean);
+            shops.forEach(s => document.getElementById('shopList').innerHTML += `<option value="${s}">`);
+            toppings.forEach(t => document.getElementById('toppingList').innerHTML += `<option value="${t}">`);
+
+            // 2. 篩選四星以上 (評分為第 8 欄，索引 7)
+            const highRatings = data.filter(r => parseInt(r[7]) >= 4);
+            if(highRatings.length === 0) {
+                highRatingDiv.innerHTML = '<div class="empty-msg">目前還沒有 4 星以上的飲料。</div>';
+            } else {
+                highRatings.forEach(r => {
+                    highRatingDiv.innerHTML += `
+                        <div class="stat-item">
+                            <span class="tag-rating">★${r[7]}</span> <span class="shop-name">${r[2]}</span> - ${r[1]}
+                        </div>`;
+                });
+            }
+
+            // 3. 篩選會回購 (回購標記為第 9 欄，索引 8)
+            const reorders = data.filter(r => r[8] === "是");
+            if(reorders.length === 0) {
+                reorderDiv.innerHTML = '<div class="empty-msg">目前還沒有標記回購的飲料。</div>';
+            } else {
+                reorders.forEach(r => {
+                    reorderDiv.innerHTML += `
+                        <div class="stat-item">
+                            <span class="shop-name">${r[2]}</span>: ${r[1]} <span class="tag-reorder">#值得回購</span>
+                        </div>`;
+                });
+            }
+        }).catch(() => {
+            document.getElementById('highRatingList').innerHTML = "無法讀取資料，請確認 Apps Script 部署設定。";
+            document.getElementById('reorderList').innerHTML = "";
+        });
+</script>
+
+</body>
+</html>
