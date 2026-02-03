@@ -12,22 +12,30 @@
         label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.9em; color: #666; }
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; background: #fff; }
         .price-group { display: flex; gap: 8px; align-items: flex-end; }
+        
         button#submitBtn { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .view-all-btn { background: #fff; color: #4CAF50; border: 2px solid #4CAF50; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; transition: 0.3s; }
+        .view-all-btn.active { background: #4CAF50; color: #fff; }
 
-        /* 白色底、綠色方格選中月曆 */
         .calendar-picker { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; }
         .year-selector-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 0 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
         .year-select { background: #f9f9f9; border: 1px solid #ddd; font-size: 1.1em; font-weight: bold; width: auto; cursor: pointer; padding: 5px 10px; border-radius: 6px; }
-
         .month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .month-btn { padding: 12px 5px; background: #fdfdfd; border: 1px solid #eee; color: #666; cursor: pointer; text-align: center; border-radius: 8px; font-size: 1em; }
-        .month-btn.active { background: #4CAF50; color: #fff; font-weight: bold; border-color: #4CAF50; box-shadow: 0 2px 5px rgba(76,175,80,0.2); }
+        .month-btn.active { background: #4CAF50; color: #fff; font-weight: bold; border-color: #4CAF50; }
 
-        /* 歷史紀錄方框 */
         .record-entry { background: #fff; border: 1px solid #ddd; margin-top: 10px; border-radius: 8px; overflow: hidden; }
         .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95em; }
         .record-details { display: none; padding: 15px; background: #fafafa; border-top: 1px solid #eee; font-size: 0.9em; }
         
+        /* 總覽顯示模式樣式優化 */
+        .all-item { border-bottom: 1px solid #eee; padding: 12px 0; }
+        .all-item-info { color: #2c3e50; margin-bottom: 5px; padding-right: 80px; position: relative; }
+        .all-btn-group { position: absolute; right: 0; top: 0; display: flex; gap: 5px; }
+        .mini-btn { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; cursor: pointer; border: 1px solid; }
+        .mini-edit { color: #3498db; border-color: #3498db; }
+        .mini-del { color: #e74c3c; border-color: #e74c3c; }
+
         .detail-item { margin-bottom: 8px; display: flex; border-bottom: 1px dashed #eee; padding-bottom: 4px; }
         .detail-label { color: #888; width: 90px; flex-shrink: 0; font-weight: bold; }
         .reorder-highlight { color: #e67e22; font-weight: bold; background: #fff3e0; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
@@ -73,8 +81,8 @@
         </optgroup>
     </select>
 
-    <label>加料</label>
-    <input type="text" id="toppingInput" placeholder="例如：粉條、珍珠">
+    <label>額外加料</label>
+    <input type="text" id="toppingInput" placeholder="例如：粉條、珍珠 (若無則留空)">
 
     <label>購買方式</label>
     <select id="orderMethod">
@@ -152,34 +160,31 @@
 <div class="card">
     <h3 onclick="toggleModule('historyModule')">📅 歷史紀錄 <span>▼</span></h3>
     <div id="historyModule" class="module-content" style="display: block;">
-        <div class="calendar-picker">
-            <div class="year-selector-wrap">
-                <select id="yearSelect" class="year-select" onchange="renderHistory()"></select>
-                <span style="font-size: 0.9em; color: #999;">年份篩選</span>
+        
+        <button id="toggleViewBtn" class="view-all-btn" onclick="toggleViewMode()">顯示所有飲料紀錄 (條列總覽)</button>
+
+        <div id="calendarPickerWrap">
+            <div class="calendar-picker">
+                <div class="year-selector-wrap">
+                    <select id="yearSelect" class="year-select" onchange="renderHistory()"></select>
+                    <span style="font-size: 0.9em; color: #999;">年份篩選</span>
+                </div>
+                <div class="month-grid" id="monthGrid"></div>
             </div>
-            <div class="month-grid" id="monthGrid"></div>
         </div>
+
         <div id="historyRecords"></div>
     </div>
 </div>
 
-<div class="card">
-    <h3 onclick="toggleModule('bestModule')">🧡 好喝清單 <span>▼</span></h3>
-    <div id="bestModule" class="module-content"><div id="bestRecords"></div></div>
-</div>
-
-<div class="card">
-    <h3 onclick="toggleModule('shopModule')">🏬 依店家篩選 <span>▼</span></h3>
-    <div id="shopModule" class="module-content">
-        <select id="shopSelect" onchange="filterByShop(this.value)"><option value="">選擇店家...</option></select>
-        <div id="shopRecords" style="margin-top:15px;"></div>
-    </div>
-</div>
+<div class="card"><h3 onclick="toggleModule('bestModule')">🧡 好喝清單 <span>▼</span></h3><div id="bestModule" class="module-content"><div id="bestRecords"></div></div></div>
+<div class="card"><h3 onclick="toggleModule('shopModule')">🏬 依店家篩選 <span>▼</span></h3><div id="shopModule" class="module-content"><select id="shopSelect" onchange="filterByShop(this.value)"><option value="">選擇店家...</option></select><div id="shopRecords" style="margin-top:15px;"></div></div></div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvMpikBJ2YRM8HCuuXj_VDUDE5Und3_vRBeYOwNy-7MulUCLIv3aGdLEMj7PrVCz8/exec";
     let allData = [];
     let selectedMonth = new Date().getMonth() + 1;
+    let isAllViewMode = false;
 
     document.getElementById('date').valueAsDate = new Date();
 
@@ -220,20 +225,65 @@
         renderBestList();
     });
 
+    function toggleViewMode() {
+        isAllViewMode = !isAllViewMode;
+        const btn = document.getElementById('toggleViewBtn');
+        const picker = document.getElementById('calendarPickerWrap');
+        if (isAllViewMode) {
+            btn.innerText = "切換回月曆篩選模式";
+            btn.classList.add('active');
+            picker.style.display = 'none';
+        } else {
+            btn.innerText = "顯示所有飲料紀錄 (條列總覽)";
+            btn.classList.remove('active');
+            picker.style.display = 'block';
+        }
+        renderHistory();
+    }
+
     function renderHistory() {
         const target = document.getElementById('historyRecords');
         const year = parseInt(document.getElementById('yearSelect').value);
-        const filtered = allData.slice(1).filter(r => {
-            let d = new Date(r[0]);
-            return d.getFullYear() === year && (d.getMonth() + 1) === selectedMonth;
+        let filtered;
+        if (isAllViewMode) {
+            filtered = allData.slice(1);
+        } else {
+            filtered = allData.slice(1).filter(r => {
+                let d = new Date(r[0]);
+                return d.getFullYear() === year && (d.getMonth() + 1) === selectedMonth;
+            });
+        }
+        target.innerHTML = filtered.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>尚無紀錄</p>";
+        filtered.reverse().forEach(r => {
+            if (isAllViewMode) {
+                target.innerHTML += renderAllViewItem(r, allData.indexOf(r));
+            } else {
+                target.innerHTML += renderRecord(r, allData.indexOf(r));
+            }
         });
-        target.innerHTML = filtered.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>本月尚無紀錄</p>";
-        filtered.reverse().forEach(r => target.innerHTML += renderRecord(r, allData.indexOf(r)));
+    }
+
+    function renderAllViewItem(r, idx) {
+        const d = new Date(r[0]);
+        const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+        const topping = r[5] ? `(${r[5]})` : "";
+        const size = r[12] ? ` - ${r[12]}` : "";
+        return `
+            <div class="all-item">
+                <div class="all-item-info">
+                    <div class="all-btn-group">
+                        <span class="mini-btn mini-edit" onclick="startEdit(${idx})">編輯</span>
+                        <span class="mini-btn mini-del" onclick="deleteRecord(${idx})">刪除</span>
+                    </div>
+                    <small style="color:#999">${dateStr}</small> 
+                    <b>${r[2]}</b> - ${r[1]}${topping} - ${r[3]}/${r[4]}${size} - <b>${r[10]} ${r[11]}</b>
+                </div>
+            </div>`;
     }
 
     function renderRecord(r, idx) {
         const isReorder = r[8] === "是";
-        const sizeInfo = r[12] ? ` [${r[12]}]` : ""; // 假設大小存在第13欄(L列)
+        const sizeInfo = r[12] ? ` [${r[12]}]` : "";
         return `
             <div class="record-entry">
                 <div class="record-summary" onclick="toggleDetail(this)">
@@ -243,7 +293,7 @@
                 <div class="record-details">
                     <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11] || 'NTD'} (${r[6]})</span></div>
                     <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
-                    <div class="detail-item"><span class="detail-label">加料內容：</span><span>${r[5] || '無'}</span></div>
+                    <div class="detail-item"><span class="detail-label">額外加料：</span><span>${r[5] || '無'}</span></div>
                     <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
                     ${isReorder ? '<div class="reorder-highlight">【會回購】</div>' : ''}
                     <div style="margin-top:10px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd;">${r[9] || '無備註'}</div>
@@ -252,14 +302,8 @@
             </div>`;
     }
 
-    function toggleModule(id) {
-        const el = document.getElementById(id);
-        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-    }
-    function toggleDetail(el) {
-        const d = el.nextElementSibling;
-        d.style.display = (d.style.display === 'block') ? 'none' : 'block';
-    }
+    function toggleModule(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
+    function toggleDetail(el) { const d = el.nextElementSibling; d.style.display = (d.style.display === 'block') ? 'none' : 'block'; }
 
     function refreshMetadata() {
         const shops = [...new Set(allData.slice(1).map(r => r[2]))].filter(Boolean);
@@ -274,10 +318,8 @@
     function renderBestList() {
         const target = document.getElementById('bestRecords');
         const best = allData.slice(1).filter(r => r[7] >= 4);
-        target.innerHTML = best.length ? "" : "<p style='color:#999;text-align:center;'>尚未有高分評價</p>";
-        best.reverse().forEach(r => {
-            target.innerHTML += `<div class="best-item"><b>${r[2]}</b> - ${r[1]} (${"⭐".repeat(r[7])})</div>`;
-        });
+        target.innerHTML = best.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>尚無高分評價</p>";
+        best.reverse().forEach(r => { target.innerHTML += `<div class="best-item"><b>${r[2]}</b> - ${r[1]} (${"⭐".repeat(r[7])})</div>`; });
     }
 
     function filterByShop(shop) {
@@ -330,7 +372,7 @@
         document.getElementById('rating').value = r[7];
         document.getElementById('reorder').checked = (r[8] === "是");
         document.getElementById('comment').value = r[9];
-        document.getElementById('size').value = r[12] || "大杯(L)"; // 假設大小在第13欄
+        document.getElementById('size').value = r[12] || "大杯(L)";
         document.getElementById('formTitle').innerText = "✍️ 正在編輯紀錄";
         document.getElementById('submitBtn').innerText = "儲存修改資料";
         window.scrollTo({ top: 0, behavior: 'smooth' });
