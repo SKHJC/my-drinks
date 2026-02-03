@@ -28,18 +28,17 @@
         .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95em; }
         .record-details { display: none; padding: 15px; background: #fafafa; border-top: 1px solid #eee; font-size: 0.9em; }
         
-        /* 總覽顯示模式樣式 */
-        .all-item { border-bottom: 1px solid #eee; padding: 10px 0; }
-        .all-item-info { color: #2c3e50; font-size: 0.9em; padding-right: 85px; position: relative; display: flex; align-items: baseline; flex-wrap: wrap; }
+        /* --- 核心優化：雙排佈局總覽條列樣式 --- */
+        .all-item { border-bottom: 1px solid #eee; padding: 12px 0; position: relative; }
+        .all-item-info { color: #2c3e50; font-size: 0.95em; display: block; }
         
-        /* 縮小灰字顯示 */
-        .small-meta { font-size: 0.75em; color: #888; }
-        .margin-right { margin-right: 5px; }
-        .margin-left { margin-left: 5px; }
-        .price-meta { font-size: 0.85em; color: #333; font-weight: bold; margin-left: auto; }
+        .all-item-sub { display: flex; align-items: center; margin-top: 4px; }
         
-        .all-btn-group { position: absolute; right: 0; top: 0; display: flex; gap: 4px; }
-        .mini-btn { display: inline-block; padding: 1px 5px; border-radius: 4px; font-size: 0.75em; cursor: pointer; border: 1px solid; }
+        .small-meta { font-size: 0.8em; color: #888; margin-right: 10px; }
+        .price-meta { font-size: 0.9em; color: #333; font-weight: bold; margin-left: auto; padding-right: 5px; }
+        
+        .all-btn-group { position: absolute; right: 0; top: 12px; display: flex; gap: 5px; }
+        .mini-btn { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; border: 1px solid; }
         .mini-edit { color: #3498db; border-color: #3498db; }
         .mini-del { color: #e74c3c; border-color: #e74c3c; }
 
@@ -141,6 +140,7 @@
 
     <label>糖 (甜度)</label>
     <select id="sugar">
+        <option value="不可調整">不可調整</option>
         <option value="正常糖">正常糖 (10分)</option>
         <option value="九分糖">九分糖</option>
         <option value="少糖(7分)">少糖(7分)</option>
@@ -153,6 +153,7 @@
 
     <label>冰 (冰塊)</label>
     <select id="ice">
+        <option value="不可調整">不可調整</option>
         <option value="正常冰">正常冰</option>
         <option value="少冰">少冰</option>
         <option value="微冰">微冰</option>
@@ -290,22 +291,25 @@
         });
     }
 
-    // --- 優化點：重新排列總覽模式的顯示內容 ---
+    // --- 優化：全部條列模式渲染 (統一改為雙排樣式) ---
     function renderAllViewItem(r, idx) {
         const d = new Date(r[0]);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
         const topping = r[5] ? `(${r[5]})` : "";
+        const isReorder = r[8] === "是" ? "★" : "";
         
         return `
             <div class="all-item">
+                <div class="all-btn-group">
+                    <span class="mini-btn mini-edit" onclick="startEdit(${idx})">編輯</span>
+                    <span class="mini-btn mini-del" onclick="deleteRecord(${idx})">刪除</span>
+                </div>
                 <div class="all-item-info">
-                    <div class="all-btn-group">
-                        <span class="mini-btn mini-edit" onclick="startEdit(${idx})">編輯</span>
-                        <span class="mini-btn mini-del" onclick="deleteRecord(${idx})">刪除</span>
-                    </div>
-                    <span class="small-meta margin-right">${dateStr}</span>
-                    <b>${r[2]}</b> - ${r[1]}${topping} 
-                    <span class="small-meta margin-left"> - ${r[3]}/${r[4]} - ${r[12] || ""}</span>
+                    <small style="color:#999; margin-right:5px;">${dateStr}</small>
+                    <b>${r[2]}</b> - ${isReorder}${r[1]}${topping}
+                </div>
+                <div class="all-item-sub">
+                    <span class="small-meta">- ${r[3]} / ${r[4]} - ${r[12] || ""}</span>
                     <span class="price-meta">${r[10]} ${r[11]}</span>
                 </div>
             </div>`;
@@ -327,7 +331,7 @@
                     <div class="detail-item"><span class="detail-label">額外加料：</span><span>${r[5] || '無'}</span></div>
                     <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
                     ${isReorder ? '<div class="reorder-highlight">【會回購】</div>' : ''}
-                    <div style="margin-top:10px; background:#fff; padding:10px; border-radius:66px; border:1px solid #ddd;">${r[9] || '無備註'}</div>
+                    <div style="margin-top:10px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd;">${r[9] || '無備註'}</div>
                     <div class="btn-group"><div class="edit-btn" onclick="startEdit(${idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${idx})">刪除</div></div>
                 </div>
             </div>`;
