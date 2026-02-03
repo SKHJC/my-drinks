@@ -28,11 +28,18 @@
         .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95em; }
         .record-details { display: none; padding: 15px; background: #fafafa; border-top: 1px solid #eee; font-size: 0.9em; }
         
-        /* 總覽顯示模式樣式優化 */
-        .all-item { border-bottom: 1px solid #eee; padding: 12px 0; }
-        .all-item-info { color: #2c3e50; margin-bottom: 5px; padding-right: 80px; position: relative; }
-        .all-btn-group { position: absolute; right: 0; top: 0; display: flex; gap: 5px; }
-        .mini-btn { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; cursor: pointer; border: 1px solid; }
+        /* 總覽顯示模式樣式 */
+        .all-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .all-item-info { color: #2c3e50; font-size: 0.9em; padding-right: 85px; position: relative; display: flex; align-items: baseline; flex-wrap: wrap; }
+        
+        /* 縮小灰字顯示 */
+        .small-meta { font-size: 0.75em; color: #888; }
+        .margin-right { margin-right: 5px; }
+        .margin-left { margin-left: 5px; }
+        .price-meta { font-size: 0.85em; color: #333; font-weight: bold; margin-left: auto; }
+        
+        .all-btn-group { position: absolute; right: 0; top: 0; display: flex; gap: 4px; }
+        .mini-btn { display: inline-block; padding: 1px 5px; border-radius: 4px; font-size: 0.75em; cursor: pointer; border: 1px solid; }
         .mini-edit { color: #3498db; border-color: #3498db; }
         .mini-del { color: #e74c3c; border-color: #e74c3c; }
 
@@ -66,18 +73,36 @@
 
     <label>容量大小</label>
     <select id="size">
-        <optgroup label="手搖飲常見">
+        <optgroup label="一般手搖飲">
+            <option value="特大杯(XL/1000cc)">特大杯 (XL / 1000cc)</option>
             <option value="大杯(L)">大杯 (L)</option>
             <option value="中杯(M)">中杯 (M)</option>
             <option value="小杯(S)">小杯 (S)</option>
-            <option value="特大杯(XL/1000cc)">特大杯 (XL / 1000cc)</option>
-            <option value="瓶裝">瓶裝</option>
         </optgroup>
-        <optgroup label="星巴克/咖啡店">
-            <option value="特大杯 Venti">星巴克 - 特大杯 (Venti)</option>
-            <option value="大杯 Grande">星巴克 - 大杯 (Grande)</option>
-            <option value="中杯 Tall">星巴克 - 中杯 (Tall)</option>
-            <option value="小杯 Short">星巴克 - 小杯 (Short)</option>
+        <optgroup label="品牌專屬分享瓶">
+            <option value="麻古分享瓶(960ml)">麻古茶坊分享瓶 (960ml)</option>
+            <option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option>
+            <option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (約1L)</option>
+            <option value="老賴分享瓶(2L)">老賴茶棧分享瓶 (約2L)</option>
+            <option value="一般瓶裝">一般瓶裝</option>
+        </optgroup>
+        <optgroup label="連鎖咖啡 (星巴克/路易莎/85度C)">
+            <option value="咖啡特大杯(Venti/660ml)">特大杯 (Venti / 660ml)</option>
+            <option value="咖啡大杯(Grande/480ml)">大杯 (Grande / 480ml)</option>
+            <option value="咖啡中杯(Tall/360ml)">中杯 (Tall / 360ml)</option>
+            <option value="咖啡小杯(Short/240ml)">小杯 (Short / 240ml)</option>
+        </optgroup>
+        <optgroup label="超商咖啡 (7-11/全家/萊爾富/OK)">
+            <option value="超商特大杯(約600-660ml)">超商特大杯 (約600-660ml)</option>
+            <option value="超商大杯(約480ml)">超商大杯 (約480ml)</option>
+            <option value="超商中杯(約360ml)">超商中杯 (約360ml)</option>
+            <option value="超商小杯(約240ml)">超商小杯 (約240ml)</option>
+        </optgroup>
+        <optgroup label="速食店 (麥當勞/肯德基/漢堡王/摩斯)">
+            <option value="速食店特大杯(約800-900ml)">速食店特大杯 (800ml+)</option>
+            <option value="速食店大杯(約600-660ml)">速食店大杯 (約600-660ml)</option>
+            <option value="速食店中杯(約430-590ml)">速食店中杯 (約430-590ml)</option>
+            <option value="速食店小杯(約225-430ml)">速食店小杯 (約225-430ml)</option>
         </optgroup>
     </select>
 
@@ -243,7 +268,9 @@
 
     function renderHistory() {
         const target = document.getElementById('historyRecords');
-        const year = parseInt(document.getElementById('yearSelect').value);
+        const yearSelect = document.getElementById('yearSelect');
+        const year = yearSelect ? parseInt(yearSelect.value) : new Date().getFullYear();
+        
         let filtered;
         if (isAllViewMode) {
             filtered = allData.slice(1);
@@ -263,11 +290,12 @@
         });
     }
 
+    // --- 優化點：重新排列總覽模式的顯示內容 ---
     function renderAllViewItem(r, idx) {
         const d = new Date(r[0]);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
         const topping = r[5] ? `(${r[5]})` : "";
-        const size = r[12] ? ` - ${r[12]}` : "";
+        
         return `
             <div class="all-item">
                 <div class="all-item-info">
@@ -275,8 +303,10 @@
                         <span class="mini-btn mini-edit" onclick="startEdit(${idx})">編輯</span>
                         <span class="mini-btn mini-del" onclick="deleteRecord(${idx})">刪除</span>
                     </div>
-                    <small style="color:#999">${dateStr}</small> 
-                    <b>${r[2]}</b> - ${r[1]}${topping} - ${r[3]}/${r[4]}${size} - <b>${r[10]} ${r[11]}</b>
+                    <span class="small-meta margin-right">${dateStr}</span>
+                    <b>${r[2]}</b> - ${r[1]}${topping} 
+                    <span class="small-meta margin-left"> - ${r[3]}/${r[4]} - ${r[12] || ""}</span>
+                    <span class="price-meta">${r[10]} ${r[11]}</span>
                 </div>
             </div>`;
     }
@@ -293,10 +323,11 @@
                 <div class="record-details">
                     <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11] || 'NTD'} (${r[6]})</span></div>
                     <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
+                    <div class="detail-item"><span class="detail-label">容量大小：</span><span>${r[12] || '未記錄'}</span></div>
                     <div class="detail-item"><span class="detail-label">額外加料：</span><span>${r[5] || '無'}</span></div>
                     <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
                     ${isReorder ? '<div class="reorder-highlight">【會回購】</div>' : ''}
-                    <div style="margin-top:10px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd;">${r[9] || '無備註'}</div>
+                    <div style="margin-top:10px; background:#fff; padding:10px; border-radius:66px; border:1px solid #ddd;">${r[9] || '無備註'}</div>
                     <div class="btn-group"><div class="edit-btn" onclick="startEdit(${idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${idx})">刪除</div></div>
                 </div>
             </div>`;
@@ -309,10 +340,8 @@
         const shops = [...new Set(allData.slice(1).map(r => r[2]))].filter(Boolean);
         const shopSelect = document.getElementById('shopSelect');
         const shopList = document.getElementById('shopList');
-        shops.forEach(s => {
-            shopSelect.innerHTML += `<option value="${s}">${s}</option>`;
-            shopList.innerHTML += `<option value="${s}">`;
-        });
+        if(shopSelect) shops.forEach(s => shopSelect.innerHTML += `<option value="${s}">${s}</option>`);
+        if(shopList) shops.forEach(s => shopList.innerHTML += `<option value="${s}">`);
     }
 
     function renderBestList() {
