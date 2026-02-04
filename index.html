@@ -28,16 +28,13 @@
         .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95em; }
         .record-details { display: none; padding: 15px; background: #fafafa; border-top: 1px solid #eee; font-size: 0.9em; }
         
-        /* --- 修正：解決重疊問題的雙排佈局 --- */
         .all-item { border-bottom: 1px solid #eee; padding: 12px 0; }
         .all-item-info { color: #2c3e50; font-size: 0.95em; display: block; width: 100%; word-break: break-all; }
-        
         .all-item-sub { display: flex; align-items: center; margin-top: 6px; flex-wrap: wrap; gap: 5px; }
         
         .small-meta { font-size: 0.8em; color: #888; }
         .price-meta { font-size: 0.9em; color: #333; font-weight: bold; margin-right: auto; }
         
-        /* 按鈕群組改為彈性排列，不再使用絕對定位以免重疊文字 */
         .all-btn-group { display: flex; gap: 5px; margin-left: auto; }
         .mini-btn { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; border: 1px solid; background: #fff; }
         .mini-edit { color: #3498db; border-color: #3498db; }
@@ -60,136 +57,40 @@
 <div class="card">
     <h2 id="formTitle">🥤 飲料紀錄</h2>
     <input type="hidden" id="editRowId">
-    
-    <label>日期</label>
-    <input type="date" id="date">
-
-    <label>店家名稱</label>
-    <input type="text" id="shopInput" list="shopList" placeholder="例如：林三茶研所">
-    <datalist id="shopList"></datalist>
-
-    <label>飲料名稱</label>
-    <input type="text" id="drinkName" placeholder="例如：黃金烏龍拿鐵">
-
+    <label>日期</label><input type="date" id="date">
+    <label>店家名稱</label><input type="text" id="shopInput" list="shopList" placeholder="例如：林三茶研所"><datalist id="shopList"></datalist>
+    <label>飲料名稱</label><input type="text" id="drinkName" placeholder="例如：黃金烏龍拿鐵">
     <label>容量大小</label>
     <select id="size">
-        <optgroup label="一般手搖飲">
-            <option value="特大杯(XL/1000cc)">特大杯 (XL / 1000cc)</option>
-            <option value="大杯(L)">大杯 (L)</option>
-            <option value="中杯(M)">中杯 (M)</option>
-            <option value="小杯(S)">小杯 (S)</option>
-        </optgroup>
-        <optgroup label="品牌專屬分享瓶">
-            <option value="麻古分享瓶(960ml)">麻古茶坊分享瓶 (960ml)</option>
-            <option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option>
-            <option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (約1L)</option>
-            <option value="老賴分享瓶(2L)">老賴茶棧分享瓶 (約2L)</option>
-            <option value="一般瓶裝">一般瓶裝</option>
-        </optgroup>
-        <optgroup label="連鎖咖啡 (星巴克/路易莎/85度C)">
-            <option value="咖啡特大杯(Venti/660ml)">特大杯 (Venti / 660ml)</option>
-            <option value="咖啡大杯(Grande/480ml)">大杯 (Grande / 480ml)</option>
-            <option value="咖啡中杯(Tall/360ml)">中杯 (Tall / 360ml)</option>
-            <option value="咖啡小杯(Short/240ml)">小杯 (Short / 240ml)</option>
-        </optgroup>
-        <optgroup label="超商咖啡 (7-11/全家/萊爾富/OK)">
-            <option value="超商特大杯(約600-660ml)">超商特大杯 (約600-660ml)</option>
-            <option value="超商大杯(約480ml)">超商大杯 (約480ml)</option>
-            <option value="超商中杯(約360ml)">超商中杯 (約360ml)</option>
-            <option value="超商小杯(約240ml)">超商小杯 (約240ml)</option>
-        </optgroup>
-        <optgroup label="速食店 (麥當勞/肯德基/漢堡王/摩斯)">
-            <option value="速食店特大杯(約800-900ml)">速食店特大杯 (800ml+)</option>
-            <option value="速食店大杯(約600-660ml)">速食店大杯 (約600-660ml)</option>
-            <option value="速食店中杯(約430-590ml)">速食店中杯 (約430-590ml)</option>
-            <option value="速食店小杯(約225-430ml)">速食店小杯 (約225-430ml)</option>
-        </optgroup>
+        <optgroup label="一般手搖飲"><option value="特大杯(XL/1000cc)">特大杯 (XL/1000cc)</option><option value="大杯(L)">大杯 (L)</option><option value="中杯(M)">中杯 (M)</option><option value="小杯(S)">小杯 (S)</option></optgroup>
+        <optgroup label="品牌專屬分享瓶"><option value="麻古分享瓶(960ml)">麻古分享瓶 (960ml)</option><option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option><option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (1L)</option><option value="老賴分享瓶(2L)">老賴分享瓶 (2L)</option><option value="一般瓶裝">一般瓶裝</option></optgroup>
+        <optgroup label="連鎖咖啡"><option value="咖啡特大杯(Venti)">咖啡特大杯 (Venti)</option><option value="咖啡大杯(Grande)">咖啡大杯 (Grande)</option><option value="咖啡中杯(Tall)">咖啡中杯 (Tall)</option><option value="咖啡小杯(Short)">咖啡小杯 (Short)</option></optgroup>
+        <optgroup label="超商/速食店"><option value="特大杯">特大杯</option><option value="大杯">大杯</option><option value="中杯">中杯</option><option value="小杯">小杯</option></optgroup>
     </select>
-
-    <label>額外加料</label>
-    <input type="text" id="toppingInput" placeholder="例如：粉條、珍珠 (若無則留空)">
-
+    <label>額外加料</label><input type="text" id="toppingInput" placeholder="例如：粉條、珍珠">
     <label>購買方式</label>
     <select id="orderMethod">
-        <option value="店取">店取 (自取)</option>
-        <option value="外送">外送 (店家送)</option>
-        <option value="UberEats">UberEats</option>
-        <option value="Foodpanda">Foodpanda</option>
-        <option value="其他人請客">其他人請客</option>
-        <option value="內用">內用</option>
+        <option value="店取">店取</option><option value="外送">外送</option><option value="UberEats">UberEats</option><option value="Foodpanda">Foodpanda</option><option value="其他人請客">其他人請客</option><option value="內用">內用</option>
     </select>
-
     <div class="price-group">
-        <div style="flex:2">
-            <label>總價格</label>
-            <input type="number" id="price" placeholder="金額">
-        </div>
-        <div style="flex:1">
-            <label>幣值</label>
-            <select id="currency">
-                <option value="NTD">NTD (台幣)</option>
-                <option value="USD">USD (美金)</option>
-                <option value="CNY">CNY (人民幣)</option>
-                <option value="JPY">JPY (日圓)</option>
-                <option value="KRW">KRW (韓元)</option>
-                <option value="GBP">GBP (英鎊)</option>
-                <option value="EUR">EUR (歐元)</option>
-                <option value="HKD">HKD (港幣)</option>
-            </select>
-        </div>
+        <div style="flex:2"><label>總價格</label><input type="number" id="price" placeholder="金額"></div>
+        <div style="flex:1"><label>幣值</label><select id="currency"><option value="NTD">NTD</option><option value="USD">USD</option><option value="JPY">JPY</option><option value="KRW">KRW</option></select></div>
     </div>
-
     <label>糖 (甜度)</label>
-    <select id="sugar">
-        <option value="不可調整">不可調整</option>
-        <option value="正常糖">正常糖 (10分)</option>
-        <option value="九分糖">九分糖</option>
-        <option value="少糖(7分)">少糖(7分)</option>
-        <option value="半糖(5分)">半糖(5分)</option>
-        <option value="微糖(3分)">微糖(3分)</option>
-        <option value="二分糖">二分糖</option>
-        <option value="一分糖">一分糖 (1分)</option>
-        <option value="無糖">無糖 (0%)</option>
-    </select>
-
+    <select id="sugar"><option value="不可調整">不可調整</option><option value="正常糖">正常糖</option><option value="少糖(7分)">少糖(7分)</option><option value="半糖(5分)">半糖(5分)</option><option value="微糖(3分)">微糖(3分)</option><option value="無糖">無糖</option></select>
     <label>冰 (冰塊)</label>
-    <select id="ice">
-        <option value="不可調整">不可調整</option>
-        <option value="正常冰">正常冰</option>
-        <option value="少冰">少冰</option>
-        <option value="微冰">微冰</option>
-        <option value="去冰">去冰</option>
-        <option value="完全去冰">完全去冰</option>
-        <option value="常溫">常溫</option>
-        <option value="溫">溫</option>
-        <option value="熱">熱</option>
-    </select>
-
+    <select id="ice"><option value="不可調整">不可調整</option><option value="正常冰">正常冰</option><option value="少冰">少冰</option><option value="微冰">微冰</option><option value="去冰">去冰</option><option value="完全去冰">完全去冰</option><option value="常溫">常溫</option><option value="熱">熱</option></select>
     <label>星等評分</label>
-    <select id="rating">
-        <option value="5">⭐⭐⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="1">⭐</option>
-    </select>
-
-    <label style="display:flex; align-items:center; gap:8px; margin: 15px 0; cursor: pointer;">
-        <input type="checkbox" id="reorder" style="width:22px; height:22px; margin: 0;"> <b>是否會回購</b>
-    </label>
-
-    <label>簡評</label>
-    <textarea id="comment" rows="2" placeholder="口感心得..."></textarea>
-    
+    <select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
+    <label style="display:flex; align-items:center; gap:8px; margin: 15px 0; cursor: pointer;"><input type="checkbox" id="reorder" style="width:22px; height:22px; margin: 0;"> <b>是否會回購</b></label>
+    <label>簡評</label><textarea id="comment" rows="2" placeholder="口感心得..."></textarea>
     <button onclick="submitData()" id="submitBtn">送出記錄</button>
 </div>
 
 <div class="card">
     <h3 onclick="toggleModule('historyModule')">📅 歷史紀錄 <span>▼</span></h3>
     <div id="historyModule" class="module-content" style="display: block;">
-        
         <button id="toggleViewBtn" class="view-all-btn" onclick="toggleViewMode()">顯示所有飲料紀錄 (條列總覽)</button>
-
         <div id="calendarPickerWrap">
             <div class="calendar-picker">
                 <div class="year-selector-wrap">
@@ -199,7 +100,6 @@
                 <div class="month-grid" id="monthGrid"></div>
             </div>
         </div>
-
         <div id="historyRecords"></div>
     </div>
 </div>
@@ -282,8 +182,12 @@
                 return d.getFullYear() === year && (d.getMonth() + 1) === selectedMonth;
             });
         }
+
+        // --- 核心改動：最新日期排序 (晚在前，早在後) ---
+        filtered.sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
         target.innerHTML = filtered.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>尚無紀錄</p>";
-        filtered.reverse().forEach(r => {
+        filtered.forEach(r => {
             if (isAllViewMode) {
                 target.innerHTML += renderAllViewItem(r, allData.indexOf(r));
             } else {
@@ -292,13 +196,11 @@
         });
     }
 
-    // --- 優化：按鈕移動至第二排並靠右，解決重疊問題 ---
     function renderAllViewItem(r, idx) {
         const d = new Date(r[0]);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
         const topping = r[5] ? `(${r[5]})` : "";
         const isReorder = r[8] === "是" ? "★" : "";
-        
         return `
             <div class="all-item">
                 <div class="all-item-info">
@@ -326,7 +228,7 @@
                     <span style="color:#4CAF50;font-weight:bold;">詳情▼</span>
                 </div>
                 <div class="record-details">
-                    <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11] || 'NTD'} (${r[6]})</span></div>
+                    <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11]} (${r[6]})</span></div>
                     <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
                     <div class="detail-item"><span class="detail-label">容量大小：</span><span>${r[12] || '未記錄'}</span></div>
                     <div class="detail-item"><span class="detail-label">額外加料：</span><span>${r[5] || '無'}</span></div>
@@ -340,7 +242,6 @@
 
     function toggleModule(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
     function toggleDetail(el) { const d = el.nextElementSibling; d.style.display = (d.style.display === 'block') ? 'none' : 'block'; }
-
     function refreshMetadata() {
         const shops = [...new Set(allData.slice(1).map(r => r[2]))].filter(Boolean);
         const shopSelect = document.getElementById('shopSelect');
@@ -348,22 +249,20 @@
         if(shopSelect) shops.forEach(s => shopSelect.innerHTML += `<option value="${s}">${s}</option>`);
         if(shopList) shops.forEach(s => shopList.innerHTML += `<option value="${s}">`);
     }
-
     function renderBestList() {
         const target = document.getElementById('bestRecords');
         const best = allData.slice(1).filter(r => r[7] >= 4);
         target.innerHTML = best.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>尚無高分評價</p>";
         best.reverse().forEach(r => { target.innerHTML += `<div class="best-item"><b>${r[2]}</b> - ${r[1]} (${"⭐".repeat(r[7])})</div>`; });
     }
-
     function filterByShop(shop) {
         const target = document.getElementById('shopRecords');
         if(!shop) { target.innerHTML = ""; return; }
         const filtered = allData.slice(1).filter(r => r[2] === shop);
+        filtered.sort((a, b) => new Date(b[0]) - new Date(a[0]));
         target.innerHTML = "";
-        filtered.reverse().forEach(r => target.innerHTML += renderRecord(r, allData.indexOf(r)));
+        filtered.forEach(r => target.innerHTML += renderRecord(r, allData.indexOf(r)));
     }
-
     function submitData() {
         const btn = document.getElementById('submitBtn');
         const data = {
@@ -385,12 +284,10 @@
         btn.disabled = true;
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) }).then(() => location.reload());
     }
-
     function deleteRecord(idx) {
         if(!confirm("確定要刪除嗎？")) return;
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify({method:'DELETE', rowId:idx}) }).then(() => location.reload());
     }
-
     function startEdit(idx) {
         const r = allData[idx];
         document.getElementById('editRowId').value = idx;
