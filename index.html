@@ -44,6 +44,8 @@
         .detail-label { color: #888; width: 90px; flex-shrink: 0; font-weight: bold; }
         .reorder-highlight { color: #e67e22; font-weight: bold; background: #fff3e0; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
         
+        .history-group-divider { border-top: 2px solid #ddd; margin: 15px 0 5px 0; padding-top: 5px; color: #4CAF50; font-weight: bold; font-size: 0.85em; }
+
         .btn-group { display: flex; gap: 8px; margin-top: 15px; }
         .edit-btn, .del-btn { cursor: pointer; border: 1px solid #3498db; padding: 6px 12px; border-radius: 6px; flex: 1; text-align: center; font-size: 0.85em; }
         .edit-btn { color: #3498db; }
@@ -62,10 +64,9 @@
     <label>飲料名稱</label><input type="text" id="drinkName" placeholder="例如：黃金烏龍拿鐵">
     <label>容量大小</label>
     <select id="size">
-        <optgroup label="一般手搖飲"><option value="特大杯(XL/1000cc)">特大杯 (XL/1000cc)</option><option value="大杯(L)">大杯 (L)</option><option value="中杯(M)">中杯 (M)</option><option value="小杯(S)">小杯 (S)</option></optgroup>
-        <optgroup label="品牌專屬分享瓶"><option value="麻古分享瓶(960ml)">麻古分享瓶 (960ml)</option><option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option><option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (1L)</option><option value="老賴分享瓶(2L)">老賴分享瓶 (2L)</option><option value="一般瓶裝">一般瓶裝</option></optgroup>
-        <optgroup label="連鎖咖啡"><option value="咖啡特大杯(Venti)">咖啡特大杯 (Venti)</option><option value="咖啡大杯(Grande)">咖啡大杯 (Grande)</option><option value="咖啡中杯(Tall)">咖啡中杯 (Tall)</option><option value="咖啡小杯(Short)">咖啡小杯 (Short)</option></optgroup>
-        <optgroup label="超商/速食店"><option value="特大杯">特大杯</option><option value="大杯">大杯</option><option value="中杯">中杯</option><option value="小杯">小杯</option></optgroup>
+        <optgroup label="一般手搖飲"><option value="大杯(L)">大杯 (L)</option><option value="中杯(M)">中杯 (M)</option><option value="小杯(S)">小杯 (S)</option><option value="特大杯(XL/1000cc)">特大杯 (XL/1000cc)</option><option value="瓶裝">瓶裝</option></optgroup>
+        <optgroup label="品牌專屬分享瓶"><option value="麻古分享瓶(960ml)">麻古分享瓶 (960ml)</option><option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option><option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (1L)</option><option value="老賴分享瓶(2L)">老賴分享瓶 (2L)</option></optgroup>
+        <optgroup label="咖啡/超商/速食店"><option value="特大杯">特大杯</option><option value="大杯">大杯</option><option value="中杯">中杯</option><option value="小杯">小杯</option></optgroup>
     </select>
     <label>額外加料</label><input type="text" id="toppingInput" placeholder="例如：粉條、珍珠">
     <label>購買方式</label>
@@ -83,7 +84,7 @@
     <label>星等評分</label>
     <select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
     <label style="display:flex; align-items:center; gap:8px; margin: 15px 0; cursor: pointer;"><input type="checkbox" id="reorder" style="width:22px; height:22px; margin: 0;"> <b>是否會回購</b></label>
-    <label>簡評</label><textarea id="comment" rows="2" placeholder="口感心得..."></textarea>
+    <label>簡評</label><textarea id="comment" rows="2" placeholder="詳細心得..."></textarea>
     <button onclick="submitData()" id="submitBtn">送出記錄</button>
 </div>
 
@@ -172,62 +173,47 @@
         const target = document.getElementById('historyRecords');
         const yearSelect = document.getElementById('yearSelect');
         const year = yearSelect ? parseInt(yearSelect.value) : new Date().getFullYear();
-        
-        let filtered;
-        if (isAllViewMode) {
-            filtered = allData.slice(1);
-        } else {
-            filtered = allData.slice(1).filter(r => {
-                let d = new Date(r[0]);
-                return d.getFullYear() === year && (d.getMonth() + 1) === selectedMonth;
-            });
-        }
-
-        // --- 核心改動：最新日期排序 (晚在前，早在後) ---
+        let filtered = isAllViewMode ? allData.slice(1) : allData.slice(1).filter(r => {
+            let d = new Date(r[0]);
+            return d.getFullYear() === year && (d.getMonth() + 1) === selectedMonth;
+        });
         filtered.sort((a, b) => new Date(b[0]) - new Date(a[0]));
-
         target.innerHTML = filtered.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>尚無紀錄</p>";
         filtered.forEach(r => {
-            if (isAllViewMode) {
-                target.innerHTML += renderAllViewItem(r, allData.indexOf(r));
-            } else {
-                target.innerHTML += renderRecord(r, allData.indexOf(r));
-            }
+            if (isAllViewMode) target.innerHTML += renderAllViewItem(r, allData.indexOf(r));
+            else target.innerHTML += renderRecord(r, allData.indexOf(r), true);
         });
     }
 
     function renderAllViewItem(r, idx) {
         const d = new Date(r[0]);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
-        const topping = r[5] ? `(${r[5]})` : "";
-        const isReorder = r[8] === "是" ? "★" : "";
         return `
             <div class="all-item">
-                <div class="all-item-info">
-                    <small style="color:#999; margin-right:5px;">${dateStr}</small>
-                    <b>${r[2]}</b> - ${isReorder}${r[1]}${topping}
-                </div>
+                <div class="all-item-info"><small style="color:#999; margin-right:5px;">${dateStr}</small><b>${r[2]}</b> - ${r[8]==="是"?'★':''}${r[1]}${r[5]?`(${r[5]})`:''}</div>
                 <div class="all-item-sub">
                     <span class="price-meta">${r[10]} ${r[11]}</span>
                     <span class="small-meta">- ${r[3]} / ${r[4]} - ${r[12] || ""}</span>
-                    <div class="all-btn-group">
-                        <span class="mini-btn mini-edit" onclick="startEdit(${idx})">編輯</span>
-                        <span class="mini-btn mini-del" onclick="deleteRecord(${idx})">刪除</span>
-                    </div>
+                    <div class="all-btn-group"><span class="mini-btn mini-edit" onclick="startEdit(${idx})">編輯</span><span class="mini-btn mini-del" onclick="deleteRecord(${idx})">刪除</span></div>
                 </div>
             </div>`;
     }
 
-    function renderRecord(r, idx) {
+    // 通用渲染邏輯
+    function renderRecord(r, idx, showDateInTitle) {
         const isReorder = r[8] === "是";
-        const sizeInfo = r[12] ? ` [${r[12]}]` : "";
+        const d = new Date(r[0]);
+        const dateHeader = showDateInTitle ? `<b>${d.getDate()}日</b> ` : "";
+        const dateDetail = !showDateInTitle ? `<div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄</div>` : "";
+        
         return `
             <div class="record-entry">
                 <div class="record-summary" onclick="toggleDetail(this)">
-                    <div><b>${new Date(r[0]).getDate()}日</b> ${r[2]} - ${isReorder?'★':''}${r[1]}${sizeInfo}</div>
+                    <div>${dateHeader}${r[2]} - ${isReorder?'★':''}${r[1]}${r[12] ? ` [${r[12]}]` : ""}</div>
                     <span style="color:#4CAF50;font-weight:bold;">詳情▼</span>
                 </div>
                 <div class="record-details">
+                    ${dateDetail}
                     <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11]} (${r[6]})</span></div>
                     <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
                     <div class="detail-item"><span class="detail-label">容量大小：</span><span>${r[12] || '未記錄'}</span></div>
@@ -242,27 +228,78 @@
 
     function toggleModule(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
     function toggleDetail(el) { const d = el.nextElementSibling; d.style.display = (d.style.display === 'block') ? 'none' : 'block'; }
+
     function refreshMetadata() {
         const shops = [...new Set(allData.slice(1).map(r => r[2]))].filter(Boolean);
         const shopSelect = document.getElementById('shopSelect');
         const shopList = document.getElementById('shopList');
-        if(shopSelect) shops.forEach(s => shopSelect.innerHTML += `<option value="${s}">${s}</option>`);
+        if(shopSelect) {
+            shopSelect.innerHTML = '<option value="">選擇店家...</option>';
+            shops.forEach(s => shopSelect.innerHTML += `<option value="${s}">${s}</option>`);
+        }
         if(shopList) shops.forEach(s => shopList.innerHTML += `<option value="${s}">`);
     }
+
     function renderBestList() {
         const target = document.getElementById('bestRecords');
         const best = allData.slice(1).filter(r => r[7] >= 4);
         target.innerHTML = best.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>尚無高分評價</p>";
-        best.reverse().forEach(r => { target.innerHTML += `<div class="best-item"><b>${r[2]}</b> - ${r[1]} (${"⭐".repeat(r[7])})</div>`; });
+        best.reverse().forEach(r => target.innerHTML += `<div class="best-item"><b>${r[2]}</b> - ${r[1]} (${"⭐".repeat(r[7])})</div>`);
     }
+
+    // --- 優化點：店家篩選模式合併邏輯 ---
     function filterByShop(shop) {
         const target = document.getElementById('shopRecords');
         if(!shop) { target.innerHTML = ""; return; }
-        const filtered = allData.slice(1).filter(r => r[2] === shop);
+        
+        // 取得該店所有資料並排序
+        let filtered = allData.slice(1).filter(r => r[2] === shop);
         filtered.sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
+        // 按品項名稱合併
+        const groupedByDrink = {};
+        filtered.forEach(r => {
+            const drinkName = r[1];
+            if (!groupedByDrink[drinkName]) groupedByDrink[drinkName] = [];
+            groupedByDrink[drinkName].push({ data: r, idx: allData.indexOf(r) });
+        });
+
         target.innerHTML = "";
-        filtered.forEach(r => target.innerHTML += renderRecord(r, allData.indexOf(r)));
+        Object.keys(groupedByDrink).forEach(drink => {
+            const records = groupedByDrink[drink];
+            const first = records[0].data;
+            const isReorder = first[8] === "是";
+            
+            // 生成合併後的 HTML
+            let html = `
+                <div class="record-entry">
+                    <div class="record-summary" onclick="toggleDetail(this)">
+                        <div><b>${drink}</b>${first[12] ? ` [${first[12]}]` : ""} ${records.length > 1 ? `<small style="color:#999">(共 ${records.length} 次紀錄)</small>` : ""}</div>
+                        <span style="color:#4CAF50;font-weight:bold;">詳情▼</span>
+                    </div>
+                    <div class="record-details">`;
+            
+            // 詳情內條列每一筆日期與內容
+            records.forEach(item => {
+                const r = item.data;
+                const d = new Date(r[0]);
+                html += `
+                    <div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄</div>
+                    <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11]} (${r[6]})</span></div>
+                    <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
+                    <div class="detail-item"><span class="detail-label">額外加料：</span><span>${r[5] || '無'}</span></div>
+                    <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
+                    ${r[8]==="是" ? '<div class="reorder-highlight">【會回購】</div>' : ''}
+                    <div style="margin-top:5px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">${r[9] || '無備註'}</div>
+                    <div class="btn-group" style="margin-bottom:15px;"><div class="edit-btn" onclick="startEdit(${item.idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${item.idx})">刪除</div></div>
+                `;
+            });
+
+            html += `</div></div>`;
+            target.innerHTML += html;
+        });
     }
+
     function submitData() {
         const btn = document.getElementById('submitBtn');
         const data = {
@@ -281,13 +318,16 @@
             currency: document.getElementById('currency').value,
             size: document.getElementById('size').value
         };
+        if(!data.date || !data.drinkName || !data.shopName) return alert("請填寫日期、店家與飲料名稱！");
         btn.disabled = true;
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) }).then(() => location.reload());
     }
+
     function deleteRecord(idx) {
         if(!confirm("確定要刪除嗎？")) return;
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify({method:'DELETE', rowId:idx}) }).then(() => location.reload());
     }
+
     function startEdit(idx) {
         const r = allData[idx];
         document.getElementById('editRowId').value = idx;
