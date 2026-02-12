@@ -114,6 +114,7 @@
     let selectedMonth = new Date().getMonth() + 1;
     let isAllViewMode = false;
 
+    // 初始化表單日期為今天
     document.getElementById('date').valueAsDate = new Date();
 
     function initYearSelect() {
@@ -199,7 +200,6 @@
             </div>`;
     }
 
-    // 通用渲染邏輯
     function renderRecord(r, idx, showDateInTitle) {
         const isReorder = r[8] === "是";
         const d = new Date(r[0]);
@@ -247,30 +247,21 @@
         best.reverse().forEach(r => target.innerHTML += `<div class="best-item"><b>${r[2]}</b> - ${r[1]} (${"⭐".repeat(r[7])})</div>`);
     }
 
-    // --- 優化點：店家篩選模式合併邏輯 ---
     function filterByShop(shop) {
         const target = document.getElementById('shopRecords');
         if(!shop) { target.innerHTML = ""; return; }
-        
-        // 取得該店所有資料並排序
         let filtered = allData.slice(1).filter(r => r[2] === shop);
         filtered.sort((a, b) => new Date(b[0]) - new Date(a[0]));
-
-        // 按品項名稱合併
         const groupedByDrink = {};
         filtered.forEach(r => {
             const drinkName = r[1];
             if (!groupedByDrink[drinkName]) groupedByDrink[drinkName] = [];
             groupedByDrink[drinkName].push({ data: r, idx: allData.indexOf(r) });
         });
-
         target.innerHTML = "";
         Object.keys(groupedByDrink).forEach(drink => {
             const records = groupedByDrink[drink];
             const first = records[0].data;
-            const isReorder = first[8] === "是";
-            
-            // 生成合併後的 HTML
             let html = `
                 <div class="record-entry">
                     <div class="record-summary" onclick="toggleDetail(this)">
@@ -278,8 +269,6 @@
                         <span style="color:#4CAF50;font-weight:bold;">詳情▼</span>
                     </div>
                     <div class="record-details">`;
-            
-            // 詳情內條列每一筆日期與內容
             records.forEach(item => {
                 const r = item.data;
                 const d = new Date(r[0]);
@@ -291,10 +280,8 @@
                     <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
                     ${r[8]==="是" ? '<div class="reorder-highlight">【會回購】</div>' : ''}
                     <div style="margin-top:5px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">${r[9] || '無備註'}</div>
-                    <div class="btn-group" style="margin-bottom:15px;"><div class="edit-btn" onclick="startEdit(${item.idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${item.idx})">刪除</div></div>
-                `;
+                    <div class="btn-group" style="margin-bottom:15px;"><div class="edit-btn" onclick="startEdit(${item.idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${item.idx})">刪除</div></div>`;
             });
-
             html += `</div></div>`;
             target.innerHTML += html;
         });
@@ -328,10 +315,21 @@
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify({method:'DELETE', rowId:idx}) }).then(() => location.reload());
     }
 
+    // --- 修復重點：精確鎖定日期 ---
     function startEdit(idx) {
         const r = allData[idx];
+        const dateInput = document.getElementById('date');
+        
+        // 解析紀錄中的日期，手動校準時區偏移問題
+        const rawDate = new Date(r[0]);
+        const yyyy = rawDate.getFullYear();
+        const mm = String(rawDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(rawDate.getDate()).padStart(2, '0');
+        
+        // 賦值前先解鎖鎖定（若有的話）
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+        
         document.getElementById('editRowId').value = idx;
-        document.getElementById('date').value = new Date(r[0]).toISOString().split('T')[0];
         document.getElementById('shopInput').value = r[2];
         document.getElementById('drinkName').value = r[1];
         document.getElementById('toppingInput').value = r[5];
@@ -344,8 +342,11 @@
         document.getElementById('reorder').checked = (r[8] === "是");
         document.getElementById('comment').value = r[9];
         document.getElementById('size').value = r[12] || "大杯(L)";
+        
         document.getElementById('formTitle').innerText = "✍️ 正在編輯紀錄";
         document.getElementById('submitBtn').innerText = "儲存修改資料";
+        
+        // 平滑捲動回最上方表單
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>
