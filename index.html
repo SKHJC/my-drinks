@@ -13,13 +13,16 @@
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; background: #fff; }
         .price-group, .size-group { display: flex; gap: 8px; align-items: flex-end; }
         
+        /* 凍結欄位樣式 */
+        input:disabled { background-color: #f0f0f0; color: #999; cursor: not-allowed; }
+        .checkbox-label { display: flex; align-items: center; gap: 8px; margin: 10px 0; cursor: pointer; font-size: 0.95em; font-weight: bold; }
+        .checkbox-label input { width: 20px; height: 20px; margin: 0; }
+
         button#submitBtn { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
         .view-all-btn { background: #fff; color: #4CAF50; border: 2px solid #4CAF50; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; transition: 0.3s; }
         .view-all-btn.active { background: #4CAF50; color: #fff; }
 
         .calendar-picker { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; }
-        .year-selector-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 0 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .year-select { background: #f9f9f9; border: 1px solid #ddd; font-size: 1.1em; font-weight: bold; width: auto; cursor: pointer; padding: 5px 10px; border-radius: 6px; }
         .month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .month-btn { padding: 12px 5px; background: #fdfdfd; border: 1px solid #eee; color: #666; cursor: pointer; text-align: center; border-radius: 8px; font-size: 1em; }
         .month-btn.active { background: #4CAF50; color: #fff; font-weight: bold; border-color: #4CAF50; }
@@ -41,12 +44,7 @@
         .mini-edit { color: #3498db; border-color: #3498db; }
         .mini-del { color: #e74c3c; border-color: #e74c3c; }
 
-        .detail-item { margin-bottom: 8px; display: flex; border-bottom: 1px dashed #eee; padding-bottom: 4px; }
-        .detail-label { color: #888; width: 90px; flex-shrink: 0; font-weight: bold; }
-        .reorder-highlight { color: #e67e22; font-weight: bold; background: #fff3e0; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
-        
         .history-group-divider { border-top: 2px solid #ddd; margin: 15px 0 5px 0; padding-top: 5px; color: #4CAF50; font-weight: bold; font-size: 0.85em; }
-
         .btn-group { display: flex; gap: 8px; margin-top: 15px; }
         .edit-btn, .del-btn { cursor: pointer; border: 1px solid #3498db; padding: 6px 12px; border-radius: 6px; flex: 1; text-align: center; font-size: 0.85em; }
         .edit-btn { color: #3498db; }
@@ -82,17 +80,21 @@
     <select id="orderMethod">
         <option value="店取">店取</option><option value="外送">外送</option><option value="UberEats">UberEats</option><option value="Foodpanda">Foodpanda</option><option value="其他人請客">其他人請客</option><option value="內用">內用</option>
     </select>
+
+    <label class="checkbox-label"><input type="checkbox" id="isCombo" onchange="toggleCombo(this.checked)"> 🍱 附餐飲料 (價格凍結為0)</label>
+
     <div class="price-group">
         <div style="flex:2"><label>總價格</label><input type="number" id="price" placeholder="金額"></div>
         <div style="flex:1"><label>幣值</label><select id="currency"><option value="NTD">NTD</option><option value="USD">USD</option><option value="JPY">JPY</option><option value="KRW">KRW</option></select></div>
     </div>
+
     <label>糖 (甜度)</label>
     <select id="sugar"><option value="不可調整">不可調整</option><option value="正常糖">正常糖</option><option value="少糖(7分)">少糖(7分)</option><option value="半糖(5分)">半糖(5分)</option><option value="微糖(3分)">微糖(3分)</option><option value="無糖">無糖</option></select>
     <label>冰 (冰塊)</label>
     <select id="ice"><option value="不可調整">不可調整</option><option value="正常冰">正常冰</option><option value="少冰">少冰</option><option value="微冰">微冰</option><option value="去冰">去冰</option><option value="完全去冰">完全去冰</option><option value="常溫">常溫</option><option value="熱">熱</option></select>
     <label>星等評分</label>
     <select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
-    <label style="display:flex; align-items:center; gap:8px; margin: 15px 0; cursor: pointer;"><input type="checkbox" id="reorder" style="width:22px; height:22px; margin: 0;"> <b>是否會回購</b></label>
+    <label class="checkbox-label"><input type="checkbox" id="reorder"> <b>是否會回購</b></label>
     <label>簡評</label><textarea id="comment" rows="2" placeholder="詳細心得..."></textarea>
     <button onclick="submitData()" id="submitBtn">送出記錄</button>
 </div>
@@ -103,8 +105,8 @@
         <button id="toggleViewBtn" class="view-all-btn" onclick="toggleViewMode()">顯示所有飲料紀錄 (條列總覽)</button>
         <div id="calendarPickerWrap">
             <div class="calendar-picker">
-                <div class="year-selector-wrap">
-                    <select id="yearSelect" class="year-select" onchange="renderHistory()"></select>
+                <div class="year-selector-wrap" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <select id="yearSelect" style="width:auto; margin:0;" onchange="renderHistory()"></select>
                     <span style="font-size: 0.9em; color: #999;">年份篩選</span>
                 </div>
                 <div class="month-grid" id="monthGrid"></div>
@@ -124,6 +126,17 @@
     let isAllViewMode = false;
 
     document.getElementById('date').valueAsDate = new Date();
+
+    // 控制附餐飲料價格凍結
+    function toggleCombo(checked) {
+        const priceInput = document.getElementById('price');
+        if(checked) {
+            priceInput.value = 0;
+            priceInput.disabled = true;
+        } else {
+            priceInput.disabled = false;
+        }
+    }
 
     function initYearSelect() {
         const select = document.getElementById('yearSelect');
@@ -301,6 +314,7 @@
 
     function submitData() {
         const btn = document.getElementById('submitBtn');
+        const priceVal = document.getElementById('price').value;
         const data = {
             rowId: document.getElementById('editRowId').value,
             date: document.getElementById('date').value,
@@ -313,10 +327,10 @@
             rating: document.getElementById('rating').value,
             reorder: document.getElementById('reorder').checked,
             comment: document.getElementById('comment').value,
-            price: document.getElementById('price').value || "0",
+            price: priceVal || "0",
             currency: document.getElementById('currency').value,
             size: document.getElementById('size').value,
-            count: document.getElementById('count').value // 新增杯數
+            count: document.getElementById('count').value
         };
         if(!data.date || !data.drinkName || !data.shopName) return alert("請填寫日期、店家與飲料名稱！");
         btn.disabled = true;
@@ -341,7 +355,19 @@
         document.getElementById('drinkName').value = r[1];
         document.getElementById('toppingInput').value = r[5];
         document.getElementById('orderMethod').value = r[6] || "店取";
-        document.getElementById('price').value = r[10];
+        
+        // 編輯時判斷是否為附餐飲料
+        const priceInput = document.getElementById('price');
+        const isComboCheck = document.getElementById('isCombo');
+        priceInput.value = r[10];
+        if(r[10] == 0) {
+            isComboCheck.checked = true;
+            priceInput.disabled = true;
+        } else {
+            isComboCheck.checked = false;
+            priceInput.disabled = false;
+        }
+
         document.getElementById('currency').value = r[11] || "NTD";
         document.getElementById('sugar').value = r[3];
         document.getElementById('ice').value = r[4];
@@ -349,7 +375,7 @@
         document.getElementById('reorder').checked = (r[8] === "是");
         document.getElementById('comment').value = r[9];
         document.getElementById('size').value = r[12] || "大杯(L/700ml)";
-        document.getElementById('count').value = r[13] || 1; // 新增編輯杯數
+        document.getElementById('count').value = r[13] || 1;
         document.getElementById('formTitle').innerText = "✍️ 正在編輯紀錄";
         document.getElementById('submitBtn').innerText = "儲存修改資料";
         window.scrollTo({ top: 0, behavior: 'smooth' });
