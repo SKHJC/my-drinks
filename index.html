@@ -11,7 +11,7 @@
         
         label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.9em; color: #666; }
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; background: #fff; }
-        .price-group { display: flex; gap: 8px; align-items: flex-end; }
+        .price-group, .size-group { display: flex; gap: 8px; align-items: flex-end; }
         
         button#submitBtn { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
         .view-all-btn { background: #fff; color: #4CAF50; border: 2px solid #4CAF50; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; transition: 0.3s; }
@@ -34,6 +34,7 @@
         
         .small-meta { font-size: 0.8em; color: #888; }
         .price-meta { font-size: 0.9em; color: #333; font-weight: bold; margin-right: auto; }
+        .count-badge { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; font-weight: bold; margin-left: 5px; }
         
         .all-btn-group { display: flex; gap: 5px; margin-left: auto; }
         .mini-btn { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; border: 1px solid; background: #fff; }
@@ -50,8 +51,6 @@
         .edit-btn, .del-btn { cursor: pointer; border: 1px solid #3498db; padding: 6px 12px; border-radius: 6px; flex: 1; text-align: center; font-size: 0.85em; }
         .edit-btn { color: #3498db; }
         .del-btn { color: #e74c3c; border-color: #e74c3c; }
-
-        .best-item { padding: 15px; border: 1px solid #ddd; background: #fff; border-radius: 10px; margin-bottom: 10px; border-left: 6px solid #f39c12; }
     </style>
 </head>
 <body>
@@ -62,12 +61,22 @@
     <label>日期</label><input type="date" id="date">
     <label>店家名稱</label><input type="text" id="shopInput" list="shopList" placeholder="例如：林三茶研所"><datalist id="shopList"></datalist>
     <label>飲料名稱</label><input type="text" id="drinkName" placeholder="例如：黃金烏龍拿鐵">
-    <label>容量大小</label>
-    <select id="size">
-        <optgroup label="一般手搖飲"><option value="大杯(L)">大杯 (L)</option><option value="中杯(M)">中杯 (M)</option><option value="小杯(S)">小杯 (S)</option><option value="特大杯(XL/1000cc)">特大杯 (XL/1000cc)</option><option value="瓶裝">瓶裝</option></optgroup>
-        <optgroup label="品牌專屬分享瓶"><option value="麻古分享瓶(960ml)">麻古分享瓶 (960ml)</option><option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option><option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (1L)</option><option value="老賴分享瓶(2L)">老賴分享瓶 (2L)</option></optgroup>
-        <optgroup label="咖啡/超商/速食店"><option value="特大杯">特大杯</option><option value="大杯">大杯</option><option value="中杯">中杯</option><option value="小杯">小杯</option></optgroup>
-    </select>
+    
+    <div class="size-group">
+        <div style="flex:3">
+            <label>容量大小</label>
+            <select id="size">
+                <optgroup label="一般手搖飲"><option value="大杯(L/700ml)">大杯 (L/700ml)</option><option value="中杯(M/500ml)">中杯 (M/500ml)</option><option value="小杯(S/360ml)">小杯 (S/360ml)</option><option value="特大杯(XL/1000cc)">特大杯 (XL/1000cc)</option><option value="瓶裝">瓶裝</option></optgroup>
+                <optgroup label="品牌專屬分享瓶"><option value="麻古分享瓶(960ml)">麻古分享瓶 (960ml)</option><option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option><option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (1L)</option><option value="老賴分享瓶(2L)">老賴分享瓶 (2L)</option></optgroup>
+                <optgroup label="咖啡/超商/速食店"><option value="特大杯(約660ml)">特大杯 (約660ml)</option><option value="大杯(約480ml)">大杯 (約480ml)</option><option value="中杯(約360ml)">中杯 (約360ml)</option><option value="小杯(約240ml)">小杯 (約240ml)</option></optgroup>
+            </select>
+        </div>
+        <div style="flex:1">
+            <label>杯數</label>
+            <input type="number" id="count" value="1" min="1">
+        </div>
+    </div>
+
     <label>額外加料</label><input type="text" id="toppingInput" placeholder="例如：粉條、珍珠">
     <label>購買方式</label>
     <select id="orderMethod">
@@ -114,7 +123,6 @@
     let selectedMonth = new Date().getMonth() + 1;
     let isAllViewMode = false;
 
-    // 初始化表單日期為今天
     document.getElementById('date').valueAsDate = new Date();
 
     function initYearSelect() {
@@ -189,9 +197,10 @@
     function renderAllViewItem(r, idx) {
         const d = new Date(r[0]);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+        const count = r[13] && r[13] > 1 ? `<span class="count-badge">x${r[13]}</span>` : "";
         return `
             <div class="all-item">
-                <div class="all-item-info"><small style="color:#999; margin-right:5px;">${dateStr}</small><b>${r[2]}</b> - ${r[8]==="是"?'★':''}${r[1]}${r[5]?`(${r[5]})`:''}</div>
+                <div class="all-item-info"><small style="color:#999; margin-right:5px;">${dateStr}</small><b>${r[2]}</b> - ${r[8]==="是"?'★':''}${r[1]}${r[5]?`(${r[5]})`:''}${count}</div>
                 <div class="all-item-sub">
                     <span class="price-meta">${r[10]} ${r[11]}</span>
                     <span class="small-meta">- ${r[3]} / ${r[4]} - ${r[12] || ""}</span>
@@ -203,23 +212,25 @@
     function renderRecord(r, idx, showDateInTitle) {
         const isReorder = r[8] === "是";
         const d = new Date(r[0]);
+        const count = r[13] && r[13] > 1 ? `<span class="count-badge">x${r[13]}</span>` : "";
         const dateHeader = showDateInTitle ? `<b>${d.getDate()}日</b> ` : "";
         const dateDetail = !showDateInTitle ? `<div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄</div>` : "";
         
         return `
             <div class="record-entry">
                 <div class="record-summary" onclick="toggleDetail(this)">
-                    <div>${dateHeader}${r[2]} - ${isReorder?'★':''}${r[1]}${r[12] ? ` [${r[12]}]` : ""}</div>
+                    <div>${dateHeader}${r[2]} - ${isReorder?'★':''}${r[1]}${r[12] ? ` [${r[12]}]` : ""}${count}</div>
                     <span style="color:#4CAF50;font-weight:bold;">詳情▼</span>
                 </div>
                 <div class="record-details">
                     ${dateDetail}
                     <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11]} (${r[6]})</span></div>
+                    <div class="detail-item"><span class="detail-label">杯數：</span><span>${r[13] || 1} 杯</span></div>
                     <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
                     <div class="detail-item"><span class="detail-label">容量大小：</span><span>${r[12] || '未記錄'}</span></div>
                     <div class="detail-item"><span class="detail-label">額外加料：</span><span>${r[5] || '無'}</span></div>
                     <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
-                    ${isReorder ? '<div class="reorder-highlight">【會回購】</div>' : ''}
+                    ${r[8]==="是" ? '<div class="reorder-highlight">【會回購】</div>' : ''}
                     <div style="margin-top:10px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd;">${r[9] || '無備註'}</div>
                     <div class="btn-group"><div class="edit-btn" onclick="startEdit(${idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${idx})">刪除</div></div>
                 </div>
@@ -272,11 +283,12 @@
             records.forEach(item => {
                 const r = item.data;
                 const d = new Date(r[0]);
+                const countStr = r[13] && r[13] > 1 ? ` (杯數: ${r[13]})` : "";
                 html += `
-                    <div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄</div>
+                    <div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄${countStr}</div>
                     <div class="detail-item"><span class="detail-label">價格：</span><span>${r[10]} ${r[11]} (${r[6]})</span></div>
                     <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
-                    <div class="detail-item"><span class="detail-label">額外加料：</span><span>${r[5] || '無'}</span></div>
+                    <div class="detail-item"><span class="detail-label">加料內容：</span><span>${r[5] || '無'}</span></div>
                     <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
                     ${r[8]==="是" ? '<div class="reorder-highlight">【會回購】</div>' : ''}
                     <div style="margin-top:5px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">${r[9] || '無備註'}</div>
@@ -303,7 +315,8 @@
             comment: document.getElementById('comment').value,
             price: document.getElementById('price').value || "0",
             currency: document.getElementById('currency').value,
-            size: document.getElementById('size').value
+            size: document.getElementById('size').value,
+            count: document.getElementById('count').value // 新增杯數
         };
         if(!data.date || !data.drinkName || !data.shopName) return alert("請填寫日期、店家與飲料名稱！");
         btn.disabled = true;
@@ -315,20 +328,14 @@
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify({method:'DELETE', rowId:idx}) }).then(() => location.reload());
     }
 
-    // --- 修復重點：精確鎖定日期 ---
     function startEdit(idx) {
         const r = allData[idx];
         const dateInput = document.getElementById('date');
-        
-        // 解析紀錄中的日期，手動校準時區偏移問題
         const rawDate = new Date(r[0]);
         const yyyy = rawDate.getFullYear();
         const mm = String(rawDate.getMonth() + 1).padStart(2, '0');
         const dd = String(rawDate.getDate()).padStart(2, '0');
-        
-        // 賦值前先解鎖鎖定（若有的話）
         dateInput.value = `${yyyy}-${mm}-${dd}`;
-        
         document.getElementById('editRowId').value = idx;
         document.getElementById('shopInput').value = r[2];
         document.getElementById('drinkName').value = r[1];
@@ -341,12 +348,10 @@
         document.getElementById('rating').value = r[7];
         document.getElementById('reorder').checked = (r[8] === "是");
         document.getElementById('comment').value = r[9];
-        document.getElementById('size').value = r[12] || "大杯(L)";
-        
+        document.getElementById('size').value = r[12] || "大杯(L/700ml)";
+        document.getElementById('count').value = r[13] || 1; // 新增編輯杯數
         document.getElementById('formTitle').innerText = "✍️ 正在編輯紀錄";
         document.getElementById('submitBtn').innerText = "儲存修改資料";
-        
-        // 平滑捲動回最上方表單
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>
