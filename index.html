@@ -30,14 +30,18 @@
         .record-summary { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95em; }
         .record-details { display: none; padding: 15px; background: #fafafa; border-top: 1px solid #eee; font-size: 0.9em; }
         
+        /* 雙排佈局樣式 */
         .all-item { border-bottom: 1px solid #eee; padding: 12px 0; }
         .all-item-info { color: #2c3e50; font-size: 0.95em; display: block; width: 100%; word-break: break-all; }
         .all-item-sub { display: flex; align-items: center; margin-top: 6px; flex-wrap: wrap; gap: 5px; }
         
         .small-meta { font-size: 0.8em; color: #888; }
         .price-meta { font-size: 0.9em; color: #333; margin-right: auto; }
-        .price-meta b { color: #000; }
-        .old-price { text-decoration: line-through; color: #999; margin-right: 5px; font-weight: normal; }
+        
+        /* 價格顯示優化 */
+        .old-price { text-decoration: line-through; color: #999; margin-right: 4px; font-weight: normal; }
+        .disc-text { color: #e74c3c; font-size: 0.85em; margin-right: 4px; font-weight: bold; }
+        .final-price { color: #000; font-weight: bold; }
         
         .count-badge { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; font-weight: bold; margin-left: 5px; }
         
@@ -70,55 +74,33 @@
     <label>飲料名稱</label><input type="text" id="drinkName" placeholder="例如：黃金烏龍拿鐵" onchange="autoCheckReorder()">
     
     <div class="size-group">
-        <div style="flex:3">
-            <label>容量大小</label>
-            <select id="size">
-                <optgroup label="一般手搖飲"><option value="大杯(L/700ml)">大杯 (L/700ml)</option><option value="中杯(M/500ml)">中杯 (M/500ml)</option><option value="小杯(S/360ml)">小杯 (S/360ml)</option><option value="特大杯(XL/1000cc)">特大杯 (XL/1000cc)</option><option value="瓶裝">瓶裝</option></optgroup>
-                <optgroup label="品牌專屬分享瓶"><option value="麻古分享瓶(960ml)">麻古分享瓶 (960ml)</option><option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option><option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (1L)</option><option value="老賴分享瓶(2L)">老賴分享瓶 (2L)</option></optgroup>
-                <optgroup label="咖啡/超商/速食店"><option value="特大杯(約660ml)">特大杯 (約660ml)</option><option value="大杯(約480ml)">大杯 (約480ml)</option><option value="中杯(約360ml)">中杯 (約360ml)</option><option value="小杯(約240ml)">小杯 (約240ml)</option></optgroup>
-            </select>
-        </div>
-        <div style="flex:1">
-            <label>杯數</label>
-            <input type="number" id="count" value="1" min="1">
-        </div>
+        <div style="flex:3"><label>容量大小</label><select id="size">
+            <optgroup label="一般手搖飲"><option value="大杯(L/700ml)">大杯 (L/700ml)</option><option value="中杯(M/500ml)">中杯 (M/500ml)</option><option value="小杯(S/360ml)">小杯 (S/360ml)</option><option value="特大杯(XL/1000cc)">特大杯 (XL/1000cc)</option><option value="瓶裝">瓶裝</option></optgroup>
+            <optgroup label="品牌專屬分享瓶"><option value="麻古分享瓶(960ml)">麻古分享瓶 (960ml)</option><option value="大苑子分享瓶(960ml)">大苑子分享瓶 (960ml)</option><option value="TEA TOP分享瓶(1L)">TEA TOP分享瓶 (1L)</option><option value="老賴分享瓶(2L)">老賴分享瓶 (2L)</option></optgroup>
+            <optgroup label="咖啡/超商/速食店"><option value="特大杯(約660ml)">特大杯 (約660ml)</option><option value="大杯(約480ml)">大杯 (約480ml)</option><option value="中杯(約360ml)">中杯 (約360ml)</option><option value="小杯(約240ml)">小杯 (約240ml)</option></optgroup>
+        </select></div>
+        <div style="flex:1"><label>杯數</label><input type="number" id="count" value="1" min="1"></div>
     </div>
 
     <label>額外加料</label><input type="text" id="toppingInput" placeholder="例如：粉條、珍珠">
-    <label>購買方式</label>
-    <select id="orderMethod">
-        <option value="店取">店取</option><option value="外送">外送</option><option value="UberEats">UberEats</option><option value="Foodpanda">Foodpanda</option><option value="其他人請客">其他人請客</option><option value="內用">內用</option>
-    </select>
+    <label>購買方式</label><select id="orderMethod"><option value="店取">店取</option><option value="外送">外送</option><option value="UberEats">UberEats</option><option value="Foodpanda">Foodpanda</option><option value="其他人請客">其他人請客</option><option value="內用">內用</option></select>
 
     <label class="checkbox-label"><input type="checkbox" id="isCombo" onchange="toggleCombo(this.checked)"> 🍱 附餐飲料 (價格凍結)</label>
 
     <div class="price-group">
-        <div style="flex:2"><label>原價/單價</label><input type="number" id="price" placeholder="金額"></div>
+        <div style="flex:2"><label>原價</label><input type="number" id="price" placeholder="金額" oninput="calculateFinalPrice()"></div>
         <div style="flex:1"><label>幣值</label><select id="currency"><option value="NTD">NTD</option><option value="USD">USD</option><option value="JPY">JPY</option><option value="KRW">KRW</option></select></div>
     </div>
 
     <div class="discount-group">
-        <div style="flex:1">
-            <label>優惠方式</label>
-            <select id="discountType" onchange="calculateFinalPrice()">
-                <option value="none">無折扣</option>
-                <option value="minus">折抵金額 (元)</option>
-                <option value="percent">打折 (折)</option>
-            </select>
-        </div>
-        <div style="flex:1">
-            <label>折扣數值</label>
-            <input type="number" id="discountValue" placeholder="例: 5 或 9" oninput="calculateFinalPrice()">
-        </div>
+        <div style="flex:1"><label>折扣方式</label><select id="discountType" onchange="calculateFinalPrice()"><option value="none">無折扣</option><option value="minus">折抵金額</option><option value="percent">打折(折)</option></select></div>
+        <div style="flex:1"><label>折扣值</label><input type="number" id="discountValue" placeholder="例: 5 或 9" oninput="calculateFinalPrice()"></div>
     </div>
-    <div id="finalPriceShow" style="font-size:0.85em; color:#2e7d32; margin-top:5px; font-weight:bold; display:none;">折扣後預估：<span id="finalValue">0</span></div>
+    <div id="finalPriceShow" style="font-size:0.85em; color:#2e7d32; margin-top:5px; font-weight:bold; display:none;">計算結果：<span id="finalValue">0</span></div>
 
-    <label>糖 (甜度)</label>
-    <select id="sugar"><option value="不可調整">不可調整</option><option value="正常糖">正常糖</option><option value="少糖(7分)">少糖(7分)</option><option value="半糖(5分)">半糖(5分)</option><option value="微糖(3分)">微糖(3分)</option><option value="無糖">無糖</option></select>
-    <label>冰 (冰塊)</label>
-    <select id="ice"><option value="不可調整">不可調整</option><option value="正常冰">正常冰</option><option value="少冰">少冰</option><option value="微冰">微冰</option><option value="去冰">去冰</option><option value="完全去冰">完全去冰</option><option value="常溫">常溫</option><option value="熱">熱</option></select>
-    <label>星等評分</label>
-    <select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
+    <label>糖 (甜度)</label><select id="sugar"><option value="不可調整">不可調整</option><option value="正常糖">正常糖</option><option value="少糖(7分)">少糖(7分)</option><option value="半糖(5分)">半糖(5分)</option><option value="微糖(3分)">微糖(3分)</option><option value="無糖">無糖</option></select>
+    <label>冰 (冰塊)</label><select id="ice"><option value="不可調整">不可調整</option><option value="正常冰">正常冰</option><option value="少冰">少冰</option><option value="微冰">微冰</option><option value="去冰">去冰</option><option value="完全去冰">完全去冰</option><option value="常溫">常溫</option><option value="熱">熱</option></select>
+    <label>星等評分</label><select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
     <label class="checkbox-label"><input type="checkbox" id="reorder"> <b>是否會回購</b></label>
     <label>簡評</label><textarea id="comment" rows="2" placeholder="詳細心得..."></textarea>
     <button onclick="submitData()" id="submitBtn">送出記錄</button>
@@ -160,36 +142,25 @@
         calculateFinalPrice();
     }
 
-    // 計算折扣後價格
     function calculateFinalPrice() {
         const price = parseFloat(document.getElementById('price').value) || 0;
         const type = document.getElementById('discountType').value;
         const val = parseFloat(document.getElementById('discountValue').value) || 0;
         const display = document.getElementById('finalPriceShow');
         let final = price;
-
         if (type === 'minus') final = price - val;
         else if (type === 'percent' && val > 0) final = price * (val / 10);
-
-        if (type !== 'none' && price > 0) {
-            display.style.display = 'block';
-            document.getElementById('finalValue').innerText = Math.round(final);
-        } else {
-            display.style.display = 'none';
-        }
+        if (type !== 'none' && price > 0) { display.style.display = 'block'; document.getElementById('finalValue').innerText = Math.round(final); } 
+        else { display.style.display = 'none'; }
         return Math.round(final);
     }
 
-    // 智慧回購自動勾選
     function autoCheckReorder() {
         const shop = document.getElementById('shopInput').value.trim();
         const drink = document.getElementById('drinkName').value.trim();
         if (!shop || !drink) return;
-
         const hasReordered = allData.slice(1).some(r => r[2] === shop && r[1] === drink && r[8] === "是");
-        if (hasReordered) {
-            document.getElementById('reorder').checked = true;
-        }
+        if (hasReordered) document.getElementById('reorder').checked = true;
     }
 
     function initYearSelect() {
@@ -210,12 +181,7 @@
             btn.className = 'month-btn';
             btn.id = 'mbtn-' + i; btn.innerText = i + '月';
             if(i === selectedMonth) btn.classList.add('active');
-            btn.onclick = () => {
-                selectedMonth = i;
-                document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                renderHistory();
-            };
+            btn.onclick = () => { selectedMonth = i; document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderHistory(); };
             grid.appendChild(btn);
         }
     }
@@ -229,9 +195,7 @@
             statsMap[year] = (statsMap[year] || 0) + count;
         });
         let html = "";
-        Object.keys(statsMap).sort((a,b) => b-a).forEach(year => {
-            html += `<div>${year} &nbsp; <b>${statsMap[year]}</b> 杯(瓶)</div>`;
-        });
+        Object.keys(statsMap).sort((a,b) => b-a).forEach(year => { html += `<div>${year} &nbsp; <b>${statsMap[year]}</b> 杯(瓶)</div>`; });
         statsEl.innerHTML = html || "尚無統計資料";
     }
 
@@ -248,19 +212,29 @@
     function toggleViewMode() {
         isAllViewMode = !isAllViewMode;
         const btn = document.getElementById('toggleViewBtn');
-        const picker = document.getElementById('calendarPickerWrap');
-        if (isAllViewMode) { btn.innerText = "切換回月曆篩選模式"; btn.classList.add('active'); picker.style.display = 'none'; } 
-        else { btn.innerText = "顯示所有飲料紀錄 (條列總覽)"; btn.classList.remove('active'); picker.style.display = 'block'; }
+        if (isAllViewMode) { btn.innerText = "切換回月曆篩選模式"; btn.classList.add('active'); document.getElementById('calendarPickerWrap').style.display = 'none'; } 
+        else { btn.innerText = "顯示所有飲料紀錄 (條列總覽)"; btn.classList.remove('active'); document.getElementById('calendarPickerWrap').style.display = 'block'; }
         renderHistory();
+    }
+
+    // 重寫價格顯示組件
+    function getRichPriceHtml(origPrice, currency, discType, discVal) {
+        if (origPrice == 0) return "套餐附餐";
+        if (!discType || discType === "none" || !discVal) return `<span class="final-price">${origPrice} ${currency}</span>`;
+        
+        let final = origPrice;
+        let discLabel = "";
+        if (discType === 'minus') { final = origPrice - discVal; discLabel = `折${discVal}元`; }
+        else if (discType === 'percent') { final = Math.round(origPrice * (discVal / 10)); discLabel = `打${discVal}折`; }
+        
+        return `<span class="old-price">${origPrice}</span><span class="disc-text">${discLabel}</span><span class="final-price">${final} ${currency}</span>`;
     }
 
     function renderHistory() {
         const target = document.getElementById('historyRecords');
-        const yearSelect = document.getElementById('yearSelect');
-        const year = yearSelect ? parseInt(yearSelect.value) : new Date().getFullYear();
+        const year = parseInt(document.getElementById('yearSelect').value);
         let filtered = isAllViewMode ? allData.slice(1) : allData.slice(1).filter(r => {
-            let d = new Date(r[0]);
-            return d.getFullYear() === year && (d.getMonth() + 1) === selectedMonth;
+            let d = new Date(r[0]); return d.getFullYear() === year && (d.getMonth() + 1) === selectedMonth;
         });
         filtered.sort((a, b) => new Date(b[0]) - new Date(a[0]));
         target.innerHTML = filtered.length ? "" : "<p style='text-align:center;color:#999;padding:20px;'>尚無紀錄</p>";
@@ -270,28 +244,11 @@
         });
     }
 
-    // 格式化價格顯示邏輯
-    function formatPriceDisplay(priceStr, currency) {
-        if (priceStr == 0) return "套餐附餐";
-        
-        // 檢查是否含有備註折扣邏輯 (僅前端計算)
-        const parts = priceStr.toString().split('|'); // 假設存儲格式 K欄可能有原始價格備註
-        const price = parseFloat(parts[0]);
-        
-        // 這裡我們暫時用簡單邏輯：如果傳入的是包含折扣計算的顯示
-        return `<b>${price} ${currency}</b>`;
-    }
-
     function renderAllViewItem(r, idx) {
         const d = new Date(r[0]);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
         const count = r[13] && r[13] > 1 ? `<span class="count-badge">x${r[13]}</span>` : "";
-        
-        // 價格顯示處理
-        let priceHtml = "";
-        if(r[10] == 0) priceHtml = "套餐附餐";
-        else priceHtml = `<b>${r[10]} ${r[11]}</b>`;
-
+        const priceHtml = getRichPriceHtml(r[10], r[11], r[14], r[15]);
         return `
             <div class="all-item">
                 <div class="all-item-info"><small style="color:#999; margin-right:5px;">${dateStr}</small><b>${r[2]}</b> - ${r[8]==="是"?'★':''}${r[1]}${r[5]?`(${r[5]})`:''}${count}</div>
@@ -304,18 +261,14 @@
     }
 
     function renderRecord(r, idx, showDateInTitle) {
-        const isReorder = r[8] === "是";
         const d = new Date(r[0]);
-        const count = r[13] && r[13] > 1 ? `<span class="count-badge">x${r[13]}</span>` : "";
+        const priceHtml = getRichPriceHtml(r[10], r[11], r[14], r[15]);
         const dateHeader = showDateInTitle ? `<b>${d.getDate()}日</b> ` : "";
         const dateDetail = !showDateInTitle ? `<div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄</div>` : "";
-        
-        let priceHtml = r[10] == 0 ? "套餐附餐" : `<b>${r[10]} ${r[11]}</b>`;
-
         return `
             <div class="record-entry">
                 <div class="record-summary" onclick="toggleDetail(this)">
-                    <div>${dateHeader}${r[2]} - ${isReorder?'★':''}${r[1]}${r[12] ? ` [${r[12]}]` : ""}${count}</div>
+                    <div>${dateHeader}${r[2]} - ${r[8]==="是"?'★':''}${r[1]}${r[12] ? ` [${r[12]}]` : ""}${r[13]>1?` x${r[13]}`:''}</div>
                     <span style="color:#4CAF50;font-weight:bold;">詳情▼</span>
                 </div>
                 <div class="record-details">
@@ -335,7 +288,6 @@
 
     function toggleModule(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
     function toggleDetail(el) { const d = el.nextElementSibling; d.style.display = (d.style.display === 'block') ? 'none' : 'block'; }
-
     function refreshMetadata() {
         const shops = [...new Set(allData.slice(1).map(r => r[2]))].filter(Boolean);
         const shopSelect = document.getElementById('shopSelect');
@@ -343,7 +295,6 @@
         if(shopSelect) { shopSelect.innerHTML = '<option value="">選擇店家...</option>'; shops.forEach(s => shopSelect.innerHTML += `<option value="${s}">${s}</option>`); }
         if(shopList) { shopList.innerHTML = ""; shops.forEach(s => shopList.innerHTML += `<option value="${s}">`); }
     }
-
     function renderBestList() {
         const target = document.getElementById('bestRecords');
         const best = allData.slice(1).filter(r => r[7] >= 4);
@@ -357,46 +308,21 @@
         let filtered = allData.slice(1).filter(r => r[2] === shop);
         filtered.sort((a, b) => new Date(b[0]) - new Date(a[0]));
         const groupedByDrink = {};
-        filtered.forEach(r => {
-            const drinkName = r[1];
-            if (!groupedByDrink[drinkName]) groupedByDrink[drinkName] = [];
-            groupedByDrink[drinkName].push({ data: r, idx: allData.indexOf(r) });
-        });
+        filtered.forEach(r => { if (!groupedByDrink[r[1]]) groupedByDrink[r[1]] = []; groupedByDrink[r[1]].push({ data: r, idx: allData.indexOf(r) }); });
         target.innerHTML = "";
         Object.keys(groupedByDrink).forEach(drink => {
             const records = groupedByDrink[drink];
-            const first = records[0].data;
-            let html = `
-                <div class="record-entry">
-                    <div class="record-summary" onclick="toggleDetail(this)">
-                        <div><b>${drink}</b>${first[12] ? ` [${first[12]}]` : ""} ${records.length > 1 ? `<small style="color:#999">(共 ${records.length} 次紀錄)</small>` : ""}</div>
-                        <span style="color:#4CAF50;font-weight:bold;">詳情▼</span>
-                    </div>
-                    <div class="record-details">`;
+            let html = `<div class="record-entry"><div class="record-summary" onclick="toggleDetail(this)"><div><b>${drink}</b> ${records.length > 1 ? `<small style="color:#999">(共 ${records.length} 次)</small>` : ""}</div><span style="color:#4CAF50;font-weight:bold;">詳情▼</span></div><div class="record-details">`;
             records.forEach(item => {
-                const r = item.data;
-                const d = new Date(r[0]);
-                const countStr = r[13] && r[13] > 1 ? ` (杯數: ${r[13]})` : "";
-                let priceHtml = r[10] == 0 ? "套餐附餐" : `<b>${r[10]} ${r[11]}</b>`;
-                html += `
-                    <div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄${countStr}</div>
-                    <div class="detail-item"><span class="detail-label">價格：</span><span>${priceHtml} (${r[6]})</span></div>
-                    <div class="detail-item"><span class="detail-label">糖冰組合：</span><span>${r[3]} / ${r[4]}</span></div>
-                    <div class="detail-item"><span class="detail-label">加料內容：</span><span>${r[5] || '無'}</span></div>
-                    <div class="detail-item"><span class="detail-label">星等評分：</span><span>${"⭐".repeat(r[7])}</span></div>
-                    ${r[8]==="是" ? '<div class="reorder-highlight">【會回購】</div>' : ''}
-                    <div style="margin-top:5px; background:#fff; padding:10px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">${r[9] || '無備註'}</div>
-                    <div class="btn-group" style="margin-bottom:15px;"><div class="edit-btn" onclick="startEdit(${item.idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${item.idx})">刪除</div></div>`;
+                const r = item.data; const d = new Date(r[0]);
+                html += `<div class="history-group-divider">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 紀錄</div><div class="detail-item"><span class="detail-label">價格：</span><span>${getRichPriceHtml(r[10], r[11], r[14], r[15])}</span></div><div class="btn-group" style="margin-bottom:15px;"><div class="edit-btn" onclick="startEdit(${item.idx})">編輯</div><div class="del-btn" onclick="deleteRecord(${item.idx})">刪除</div></div>`;
             });
-            html += `</div></div>`;
-            target.innerHTML += html;
+            html += `</div></div>`; target.innerHTML += html;
         });
     }
 
     function submitData() {
         const btn = document.getElementById('submitBtn');
-        // 最終提交時，若有折扣則提交折扣後的價格
-        const finalPrice = calculateFinalPrice();
         const data = {
             rowId: document.getElementById('editRowId').value,
             date: document.getElementById('date').value,
@@ -409,12 +335,14 @@
             rating: document.getElementById('rating').value,
             reorder: document.getElementById('reorder').checked,
             comment: document.getElementById('comment').value,
-            price: finalPrice,
+            price: document.getElementById('price').value || "0",
             currency: document.getElementById('currency').value,
             size: document.getElementById('size').value,
-            count: document.getElementById('count').value
+            count: document.getElementById('count').value,
+            discType: document.getElementById('discountType').value,
+            discVal: document.getElementById('discountValue').value
         };
-        if(!data.date || !data.drinkName || !data.shopName) return alert("請填寫日期、店家與飲料名稱！");
+        if(!data.date || !data.drinkName || !data.shopName) return alert("請填寫必填欄位！");
         btn.disabled = true;
         fetch(SCRIPT_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) }).then(() => location.reload());
     }
@@ -431,13 +359,7 @@
         document.getElementById('drinkName').value = r[1];
         document.getElementById('toppingInput').value = r[5];
         document.getElementById('orderMethod').value = r[6] || "店取";
-        
-        const priceInput = document.getElementById('price');
-        const isComboCheck = document.getElementById('isCombo');
-        priceInput.value = r[10];
-        if(r[10] == 0) { isComboCheck.checked = true; priceInput.disabled = true; } 
-        else { isComboCheck.checked = false; priceInput.disabled = false; }
-
+        document.getElementById('price').value = r[10];
         document.getElementById('currency').value = r[11] || "NTD";
         document.getElementById('sugar').value = r[3];
         document.getElementById('ice').value = r[4];
@@ -446,12 +368,9 @@
         document.getElementById('comment').value = r[9];
         document.getElementById('size').value = r[12] || "大杯(L/700ml)";
         document.getElementById('count').value = r[13] || 1;
-        
-        // 重設折扣區域
-        document.getElementById('discountType').value = 'none';
-        document.getElementById('discountValue').value = '';
-        document.getElementById('finalPriceShow').style.display = 'none';
-
+        document.getElementById('discountType').value = r[14] || 'none';
+        document.getElementById('discountValue').value = r[15] || '';
+        calculateFinalPrice();
         document.getElementById('formTitle').innerText = "✍️ 正在編輯紀錄";
         document.getElementById('submitBtn').innerText = "儲存修改資料";
         window.scrollTo({ top: 0, behavior: 'smooth' });
